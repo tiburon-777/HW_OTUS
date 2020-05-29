@@ -16,6 +16,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка запроса: %e", err)
 	}
-	fmt.Printf("current time: %s\n", timeCurrent.Round(time.Second).String())
-	fmt.Printf("exact time: %s\n", timeExact.Round(time.Second).String())
+	fmt.Printf("current time: %s\n", timeFormat(timeCurrent))
+	fmt.Printf("exact time: %s\n", timeFormat(timeExact))
+}
+
+func timeFormat(t time.Time) string {
+	return t.Format("2006-01-02 15:04:05 -0700 UTC")
 }
