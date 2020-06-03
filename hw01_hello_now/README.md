@@ -1,4 +1,5 @@
 ## Домашнее задание №1 «Hello now»
+[![Build Status](https://travis-ci.com/tiburon-777/HW_OTUS.svg?branch=master)](https://travis-ci.com/tiburon-777/HW_OTUS)
 
 Необходимо написать программу, печатающую текущее локальное время и точное время,
 полученное с использованием библиотеки NTP (**github.com/beevik/ntp**) в формате:
