@@ -1,4 +1,4 @@
-module github.com/tiburon-777/hw02_unpack_string
+module github.com/tiburon-777/HW_OTUS/hw02_unpack_string
 
 go 1.14
 
