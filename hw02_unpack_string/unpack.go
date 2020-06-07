@@ -18,18 +18,12 @@ func Unpack(str string) (string, error) {
 		switch {
 		// Ловим паттерн [\][letter][digit]
 		case string(temp[i]) == slash && i < len(temp)-2 && unicode.IsLetter(temp[i+1]) && unicode.IsDigit(temp[i+2]):
-			c, err := strconv.Atoi(string(temp[i+2]))
-			if err != nil {
-				return "", err
-			}
+			c, _ := strconv.Atoi(string(temp[i+2]))
 			b.WriteString(strings.Repeat(slash+string(temp[i+1]), c))
 			i += 2
 		// Ловим паттерн [\][digit или \][digit]
 		case string(temp[i]) == slash && i < len(temp)-2 && (unicode.IsDigit(temp[i+1]) || string(temp[i+1]) == slash) && unicode.IsDigit(temp[i+2]):
-			c, err := strconv.Atoi(string(temp[i+2]))
-			if err != nil {
-				return "", err
-			}
+			c, _ := strconv.Atoi(string(temp[i+2]))
 			b.WriteString(strings.Repeat(string(temp[i+1]), c))
 			i += 2
 		// Ловим паттерн [\][digit или \]
@@ -37,10 +31,7 @@ func Unpack(str string) (string, error) {
 			b.WriteRune(temp[i+1])
 			i++
 		case unicode.IsLetter(temp[i]) && i < len(temp)-1 && unicode.IsDigit(temp[i+1]):
-			c, err := strconv.Atoi(string(temp[i+1]))
-			if err != nil {
-				return "", err
-			}
+			c, _ := strconv.Atoi(string(temp[i+1]))
 			b.WriteString(strings.Repeat(string(temp[i]), c))
 			i++
 			// Ловим паттерн [letter]...
