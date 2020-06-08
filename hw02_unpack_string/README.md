@@ -1,4 +1,5 @@
 ## Домашнее задание №2 «Распаковка строки»
+[![Build Status](https://travis-ci.com/tiburon-777/HW_OTUS.svg?branch=master)](https://travis-ci.com/tiburon-777/HW_OTUS)
 
 Необходимо написать Go функцию, осуществляющую примитивную распаковку строки,
 содержащую повторяющиеся символы/руны, например:
