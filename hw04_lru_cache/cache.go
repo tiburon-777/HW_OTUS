@@ -56,7 +56,7 @@ func (l *lruCache) Get(key Key) (interface{}, bool) {
 		return nil, false
 	}
 	l.queue.MoveToFront(l.items[key])
-	return l.items[key].Value, true
+	return l.items[key].Value.(Item).Value, true
 }
 
 func (l *lruCache) Clear() {
