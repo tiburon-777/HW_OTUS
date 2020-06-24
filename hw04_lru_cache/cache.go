@@ -1,5 +1,8 @@
 package hw04_lru_cache //nolint:golint,stylecheck
-import "sync"
+import (
+	"log"
+	"sync"
+)
 
 type Key string
 
@@ -39,7 +42,11 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	}
 	if l.queue.Len() == l.capacity {
 		l.mx.RLock()
-		delete(l.items, l.queue.Back().Value.(Item).Key)
+		k, ok := l.queue.Back().Value.(Item)
+		if !ok {
+			log.Fatal("Ошибка приведения типов")
+		}
+		delete(l.items, k.Key)
 		l.queue.Remove(l.queue.Back())
 		l.mx.RUnlock()
 	}
@@ -56,7 +63,11 @@ func (l *lruCache) Get(key Key) (interface{}, bool) {
 		return nil, false
 	}
 	l.queue.MoveToFront(l.items[key])
-	return l.items[key].Value.(Item).Value, true
+	s, ok := l.items[key].Value.(Item)
+	if !ok {
+		log.Fatal("Ошибка приведения типов")
+	}
+	return s.Value, true
 }
 
 func (l *lruCache) Clear() {
