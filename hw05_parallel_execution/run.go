@@ -22,13 +22,13 @@ func Run(tasks []Task, n int, m int) error {
 		for g := 1; g <= n && i+g < len(tasks); g++ {
 			wg.Add(1)
 			go func(rt Task, errs *Errors) {
+				defer wg.Done()
 				err := rt
 				if err != nil {
 					errs.mx.Lock()
 					errs.count++
 					errs.mx.Unlock()
 				}
-				wg.Done()
 			}(tasks[i+g], &errs)
 		}
 		wg.Wait()
