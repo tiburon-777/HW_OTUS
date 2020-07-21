@@ -23,7 +23,7 @@ func Run(tasks []Task, n int, m int) error {
 			wg.Add(1)
 			go func(rt Task, errs *Errors) {
 				defer wg.Done()
-				err := rt
+				err := rt()
 				if err != nil {
 					errs.mx.Lock()
 					errs.count++
@@ -32,7 +32,7 @@ func Run(tasks []Task, n int, m int) error {
 			}(tasks[i+g], &errs)
 		}
 		wg.Wait()
-		if errs.count > m {
+		if m > 0 && errs.count > m {
 			log.Println("Produced", errs.count, "errors of", m)
 			return ErrErrorsLimitExceeded
 		}
