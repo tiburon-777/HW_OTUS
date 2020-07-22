@@ -11,7 +11,7 @@ import (
 	"go.uber.org/goleak"
 )
 
-func TestRun(t *testing.T) {
+func TestRunMixed(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
 	t.Run("50 tasks in 10 goroutines with 100% errors and maxErrors=23 should run not more N+M (=33) tasks", func(t *testing.T) {
@@ -31,8 +31,8 @@ func TestRun(t *testing.T) {
 
 		workersCount := 10
 		maxErrorsCount := 23
+		result := RunMixed(tasks, workersCount, maxErrorsCount)
 
-		result := Run(tasks, workersCount, maxErrorsCount)
 		require.Equal(t, ErrErrorsLimitExceeded, result)
 		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started")
 	})
@@ -63,7 +63,7 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := -1
 
 		start := time.Now()
-		result := Run(tasks, workersCount, maxErrorsCount)
+		result := RunMixed(tasks, workersCount, maxErrorsCount)
 		elapsedTime := time.Since(start)
 		require.Nil(t, result)
 
@@ -93,7 +93,7 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 1
 
 		start := time.Now()
-		result := Run(tasks, workersCount, maxErrorsCount)
+		result := RunMixed(tasks, workersCount, maxErrorsCount)
 		elapsedTime := time.Since(start)
 		require.Nil(t, result)
 
