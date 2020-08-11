@@ -11,7 +11,7 @@ func TestRunCmd(t *testing.T) {
 		require.Equal(t, code, -1)
 	})
 	t.Run("Команда выполнилась", func(t *testing.T) {
-		code := RunCmd([]string{"ll"}, Environment{"E1": "val1"})
+		code := RunCmd([]string{"ls"}, Environment{"E1": "val1"})
 		require.Equal(t, code, 0)
 	})
 }
