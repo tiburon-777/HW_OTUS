@@ -8,7 +8,17 @@ import (
 func RunCmd(cmd []string, env Environment) (returnCode int) {
 	c := exec.Command(cmd[0], cmd[1:]...)
 	for k, v := range env {
-		c.Env = append(os.Environ(), k+"="+v)
+		_, ok := os.LookupEnv(k)
+		if ok {
+			if err := os.Unsetenv(k); err != nil {
+				return -1
+			}
+		}
+		if v != "" {
+			if err := os.Setenv(k, v); err != nil {
+				return -1
+			}
+		}
 	}
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr

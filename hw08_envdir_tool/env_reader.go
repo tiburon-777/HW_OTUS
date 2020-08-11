@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"regexp"
 	"strings"
 )
 
@@ -25,11 +24,10 @@ func ReadDir(dir string) (Environment, error) {
 			if err != nil {
 				return nil, err
 			}
-			// TODO: Не правильно!
 			key := file.Name()
-			key = strings.ReplaceAll(key, `=`, ``)
-			key = strings.ReplaceAll(key, `;`, ``)
-			e[key] = ExtractEnv(val)
+			if !strings.Contains(key, `=`) && !strings.Contains(key, `;`) {
+				e[key] = ExtractEnv(val)
+			}
 		}
 	}
 
@@ -56,14 +54,8 @@ func ReadFile(filePath string) (string, error) {
 }
 
 func ExtractEnv(text string) string {
-	text = strings.TrimSpace(text)
-	r := regexp.MustCompile("\"+")
-	text = r.ReplaceAllString(text, "")
-	// Удаляем все после /000
-	i := strings.IndexByte(text, 0)
-	if i > 0 {
-		text = text[:i]
-	}
+	text = strings.TrimRight(text, " ")
+	text = strings.Replace(text, "\x00", "\n", -1)
 
 	return text
 }
