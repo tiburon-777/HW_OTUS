@@ -15,3 +15,4 @@ linters:
     - wsl
     - gofumpt
     - gosec
+    - nlreturn
