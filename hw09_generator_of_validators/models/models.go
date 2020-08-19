@@ -1,8 +1,9 @@
 package models
 
+//go:generate go-validate models.go
 type UserRole string
 
-// NOTE: Several struct specs in one type declaration are allowed
+// NOTE: Several struct specs in one type declaration are allowed.
 type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`
