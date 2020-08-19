@@ -27,8 +27,8 @@ func main() {
 	buf := new(bytes.Buffer)
 	buf.WriteString(validatorHeader)
 	fset := token.NewFileSet()
-	//node, err := parser.ParseFile(fset, os.Args[1], nil, parser.ParseComments)
-	node, err := parser.ParseFile(fset, "models/models.go", nil, parser.ParseComments)
+	node, err := parser.ParseFile(fset, os.Args[1], nil, parser.ParseComments)
+	//node, err := parser.ParseFile(fset, "models/models.go", nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal("не удалось открыть файл", err.Error())
 	}
