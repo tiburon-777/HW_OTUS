@@ -91,7 +91,7 @@ func iterStructFields(name string, s *ast.StructType, buf io.Writer) (bool, erro
 		// Рекурсивный вызов, в случае если поле является структурой
 		switch field.Type.(type) {
 		case *ast.StructType:
-			if _, err := iterStructFields("."+field.Names[0].Name, field.Type.(*ast.StructType), buf); err != nil {
+			if _, err := iterStructFields(field.Names[0].Name+".", field.Type.(*ast.StructType), buf); err != nil {
 				return false, err
 			}
 		}

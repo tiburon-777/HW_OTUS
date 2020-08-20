@@ -164,7 +164,7 @@ func TestIterStructFields(T *testing.T) {
 			}
 			T.Run("Fine structure", func(t *testing.T) {
 				buf := bytes.NewBufferString("")
-				err := iterStructFields(s, buf)
+				_, err := iterStructFields("", s, buf)
 				require.Equal(t, FineStructureExpcted, buf.String())
 				require.NoError(t, err)
 			})
@@ -189,7 +189,7 @@ func TestIterStructFields(T *testing.T) {
 			}
 			T.Run("Wrong structure", func(t *testing.T) {
 				buf1 := bytes.NewBufferString("")
-				err := iterStructFields(s1, buf1)
+				_, err := iterStructFields("", s1, buf1)
 				require.Equal(t, WrongStructureExpcted, buf1.String())
 				require.NoError(t, err)
 			})

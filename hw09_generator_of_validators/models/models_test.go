@@ -17,11 +17,12 @@ func TestUserValidation(t *testing.T) {
 	requireValidation(t, User{})
 
 	goodUser := User{
-		ID:    "0a44d582-9749-11ea-a056-9ff7f30f0608",
-		Name:  "John",
-		Age:   24,
-		Email: "john@abrams.com",
-		Role:  "admin",
+		ID:       "0a44d582-9749-11ea-a056-9ff7f30f0608",
+		Name:     "John",
+		Age:      24,
+		Email:    "john@abrams.com",
+		Role:     "admin",
+		Response: Response{Code: 200},
 	}
 	requireNoValidationErrors(t, goodUser)
 
@@ -61,12 +62,13 @@ func TestUserValidation(t *testing.T) {
 
 	t.Run("fail phones slice", func(t *testing.T) {
 		badUser := User{
-			ID:     "0a44d582-9749-11ea-a056-9ff7f30f0608",
-			Name:   "John",
-			Age:    24,
-			Email:  "john@abrams.com",
-			Role:   "admin",
-			Phones: []string{"+12dfwdf343242343", "898298741293", "fdsf"},
+			ID:       "0a44d582-9749-11ea-a056-9ff7f30f0608",
+			Name:     "John",
+			Age:      24,
+			Email:    "john@abrams.com",
+			Role:     "admin",
+			Phones:   []string{"+12dfwdf343242343", "898298741293", "fdsf"},
+			Response: Response{Code: 404},
 		}
 
 		errs, err := badUser.Validate()
@@ -75,16 +77,30 @@ func TestUserValidation(t *testing.T) {
 	})
 
 	t.Run("pass phones slice", func(t *testing.T) {
-		badUser := User{
-			ID:     "0a44d582-9749-11ea-a056-9ff7f30f0608",
-			Name:   "John",
-			Age:    24,
-			Email:  "john@abrams.com",
-			Role:   "admin",
-			Phones: []string{"12345678901", "qazxswedcvf", "............"},
+		goodUser := User{
+			ID:       "0a44d582-9749-11ea-a056-9ff7f30f0608",
+			Name:     "John",
+			Age:      24,
+			Email:    "john@abrams.com",
+			Role:     "admin",
+			Phones:   []string{"12345678901", "qazxswedcvf", "..........."},
+			Response: Response{Code: 500},
+		}
+		requireNoValidationErrors(t, goodUser)
+	})
+
+	t.Run("embeded structure", func(t *testing.T) {
+		goodUser := User{
+			ID:       "0a44d582-9749-11ea-a056-9ff7f30f0608",
+			Name:     "John",
+			Age:      24,
+			Email:    "john@abrams.com",
+			Role:     "admin",
+			Phones:   []string{"12345678901", "qazxswedcvf", "............"},
+			Response: Response{Code: 500},
 		}
 
-		errs, err := badUser.Validate()
+		errs, err := goodUser.Validate()
 		require.Nil(t, err)
 		requireOneFieldErr(t, errs, "Phones")
 	})

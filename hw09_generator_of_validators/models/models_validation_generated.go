@@ -24,6 +24,7 @@ func (u User) Validate() ([]ValidationError, error) {
 	if ok, err = valRegexp([]string{string(u.Email)},`^\w+@\w+\.\w+$`); !ok { res=append(res,ValidationError{"Email",fmt.Errorf(`regexp:^\w+@\w+\.\w+$`)})}
 	if ok, err = valInString([]string{string(u.Role)},`admin,stuff`); !ok { res=append(res,ValidationError{"Role",fmt.Errorf(`in:admin,stuff`)})}
 	if ok, err = valLen(u.Phones,11); !ok { res=append(res,ValidationError{"Phones",fmt.Errorf("len:11")})}
+	if ok, err = valInInt([]int{int(u.Response.Code)},`200,404,500`); !ok { res=append(res,ValidationError{"Response.Code",fmt.Errorf("in:200,404,500")})}
 	log.Println(ok)
 	return res, err
 }
