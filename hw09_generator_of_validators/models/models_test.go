@@ -59,9 +59,34 @@ func TestUserValidation(t *testing.T) {
 		requireOneFieldErr(t, errs, "Age")
 	})
 
-	t.Run("phones slice", func(t *testing.T) {
-		// Write me :)
-		t.Fail()
+	t.Run("fail phones slice", func(t *testing.T) {
+		badUser := User{
+			ID:     "0a44d582-9749-11ea-a056-9ff7f30f0608",
+			Name:   "John",
+			Age:    24,
+			Email:  "john@abrams.com",
+			Role:   "admin",
+			Phones: []string{"+12dfwdf343242343", "898298741293", "fdsf"},
+		}
+
+		errs, err := badUser.Validate()
+		require.Nil(t, err)
+		requireOneFieldErr(t, errs, "Phones")
+	})
+
+	t.Run("pass phones slice", func(t *testing.T) {
+		badUser := User{
+			ID:     "0a44d582-9749-11ea-a056-9ff7f30f0608",
+			Name:   "John",
+			Age:    24,
+			Email:  "john@abrams.com",
+			Role:   "admin",
+			Phones: []string{"12345678901", "qazxswedcvf", "............"},
+		}
+
+		errs, err := badUser.Validate()
+		require.Nil(t, err)
+		requireOneFieldErr(t, errs, "Phones")
 	})
 
 	t.Run("many errors", func(t *testing.T) {

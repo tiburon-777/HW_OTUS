@@ -10,8 +10,8 @@ import (
 )
 
 type ValidationError struct {
-	Name	string
-	Error	error
+	Field	string
+	Err	error
 }
 
 func (u User) Validate() ([]ValidationError, error) {
@@ -37,14 +37,6 @@ func (u App) Validate() ([]ValidationError, error) {
 	return res, err
 }
 
-func (u Token) Validate() ([]ValidationError, error) {
-	res := []ValidationError{}
-	var err error
-	var ok bool
-	log.Println(ok)
-	return res, err
-}
-
 func (u Response) Validate() ([]ValidationError, error) {
 	res := []ValidationError{}
 	var err error
@@ -58,7 +50,7 @@ func (u Response) Validate() ([]ValidationError, error) {
 func valLen(s []string, n int) (bool,error) {
 	res := true
 	for _,v :=range s {
-		if len(v)>n {
+		if len(v)!=n {
 			res=false
 			break
 		}

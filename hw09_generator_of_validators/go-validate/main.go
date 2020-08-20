@@ -32,7 +32,7 @@ func main() {
 	if err != nil {
 		log.Fatal("не удалось открыть файл", err.Error())
 	}
-	// Перебираем ноды
+	// Перебираем корневые узлы
 	for _, f := range node.Decls {
 		gd, ok := f.(*ast.GenDecl)
 		if !ok {
@@ -50,21 +50,27 @@ func main() {
 			}
 			// Если все проверки пройдены, это структура
 			// Итерируем ее поля
-
+			tmpBuf := new(bytes.Buffer)
 			tmplV := TemplateVars{StructName: t.Name.Name}
 			z := template.Must(template.New("validatorFunctionHeader").Parse(validatorFunctionHeader))
-			if z.Execute(buf, tmplV) != nil {
-				log.Fatal("ошибка сборки шаблона:", err)
+			if z.Execute(tmpBuf, tmplV) != nil {
+				log.Fatal("ошибка сборки шаблона:")
 			}
-			err = iterStructFields(s, buf)
+			ok, err = iterStructFields("", s, tmpBuf)
+
 			if err != nil {
 				log.Fatal("ошибка в ходе перебора полей структуры:", err.Error())
 			}
-			buf.WriteString(validatorFunctionFooter)
+			tmpBuf.Write([]byte(validatorFunctionFooter))
+			if ok {
+				if _, err := tmpBuf.WriteTo(buf); err != nil {
+					log.Fatal("ошибка перекладывания в буфер:", err.Error())
+				}
+			}
 		}
 	}
 	buf.WriteString(validatorFunctions)
-	f, err := os.Create("models/models_validation_generated.go")
+	f, err := os.Create(strings.Split(os.Args[1], ".")[0] + "_validation_generated.go")
 	if err != nil {
 		log.Fatal("не удалось создать/открыть файл:", err.Error())
 	}
@@ -77,33 +83,33 @@ func main() {
 	if err != nil {
 		log.Fatal("не удалось записать буфер в файл:", err.Error())
 	}
-	// Тут нужно открыть файл, записать в него байтбуфер и закрыть файд
 }
 
-func iterStructFields(s *ast.StructType, buf io.Writer) error {
+func iterStructFields(name string, s *ast.StructType, buf io.Writer) (bool, error) {
+	var isValidated bool
 	for _, field := range s.Fields.List {
 		// Рекурсивный вызов, в случае если поле является структурой
-		//switch field.Type.(type) {
-		//case *ast.StructType:
-		//	if err:=iterStructFields(field.Type.(*ast.StructType), buf); err!=nil { log.Fatal("Структура не распарсилась в рекурсии:", err.Error()) }
-		//}
+		switch field.Type.(type) {
+		case *ast.StructType:
+			if _, err := iterStructFields("."+field.Names[0].Name, field.Type.(*ast.StructType), buf); err != nil {
+				return false, err
+			}
+		}
 		if len(field.Names) == 0 {
 			continue
 		}
 		// Достаем тэг поля
-		if field.Tag == nil {
-			continue
-		}
 		tag, ok := getTagString(field, "validate")
 		if !ok {
 			continue
 		}
+		isValidated = true
 		//Ищем комбинации
 		for _, comb := range strings.Split(tag, "|") {
 			k := strings.Split(comb, ":")
 
 			isSlice, fieldType := getFieldType(field)
-			tmplV := TemplateVars{FieldName: field.Names[0].Name, FieldType: fieldType, ValidatorValue: k[1], IsSlice: isSlice}
+			tmplV := TemplateVars{FieldName: name + field.Names[0].Name, FieldType: fieldType, ValidatorValue: k[1], IsSlice: isSlice}
 
 			z := &template.Template{}
 			switch k[0] {
@@ -127,14 +133,17 @@ func iterStructFields(s *ast.StructType, buf io.Writer) error {
 			}
 			err := z.Execute(buf, tmplV)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 	}
-	return nil
+	return isValidated, nil
 }
 
 func getTagString(f *ast.Field, tag string) (string, bool) {
+	if f.Tag == nil {
+		return "", false
+	}
 	t := reflect.StructTag(f.Tag.Value[1 : len(f.Tag.Value)-1])
 	v := t.Get(tag)
 	if v == "" {
@@ -144,11 +153,12 @@ func getTagString(f *ast.Field, tag string) (string, bool) {
 }
 
 func getFieldType(field *ast.Field) (bool, string) {
-	var fieldSlice bool
+	var isSlice bool
 	var fieldType string
+	// Эту конструкцию не пропускал линтер gocritic, под предлогом "typeSwitchVar: 2 cases can benefit from type switch with assignment". Я не вижу тут возможности срабатывания обеих веток. тип ast.Expr не может привестись и к *ast.Ident и к *ast.ArrayType одновременно. Пришлось, отключить старикашку критика.
 	switch field.Type.(type) {
 	case *ast.Ident:
-		fieldSlice = false
+		isSlice = false
 		fieldType = field.Type.(*ast.Ident).Name
 		if field.Type.(*ast.Ident).Obj != nil {
 			t, ok := field.Type.(*ast.Ident).Obj.Decl.(*ast.TypeSpec)
@@ -162,16 +172,16 @@ func getFieldType(field *ast.Field) (bool, string) {
 			fieldType = s.Name
 		}
 	case *ast.ArrayType:
-		fieldSlice = true
+		isSlice = true
 		fieldType = field.Type.(*ast.ArrayType).Elt.(*ast.Ident).Name
 	}
 	switch {
 	case strings.Contains(fieldType, "int"):
-		return fieldSlice, "int"
+		return isSlice, "int"
 	case strings.Contains(fieldType, "float"):
-		return fieldSlice, "float"
+		return isSlice, "float"
 	case fieldType == str:
-		return fieldSlice, str
+		return isSlice, str
 	}
 	return false, ""
 }
