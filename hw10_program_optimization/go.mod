@@ -1,4 +1,4 @@
-module github.com/fixme_my_friend/hw10_program_optimization
+module github.com/tiburon-777/HW_OTUS/hw10_program_optimization
 
 go 1.14
 

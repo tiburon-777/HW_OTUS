@@ -29,7 +29,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomains(u, domain)
 }
 
-type users [100_000]User
+type users [100000]User
 
 func getUsers(r io.Reader) (result users, err error) {
 	content, err := ioutil.ReadAll(r)
