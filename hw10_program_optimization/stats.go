@@ -33,7 +33,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			break
 		}
 		if err = json.Unmarshal(line, &user); err != nil {
-			return nil, err
+			return DomainStat{}, err
 		}
 		if strings.Contains(user.Email, "."+domain) {
 			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]++
