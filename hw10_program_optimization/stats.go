@@ -1,11 +1,11 @@
 package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
-	"encoding/json"
-	"fmt"
+	"bufio"
 	"io"
-	"io/ioutil"
 	"strings"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 type User struct {
@@ -20,42 +20,24 @@ type User struct {
 
 type DomainStat map[string]int
 
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %s", err)
-	}
-	return countDomains(u, domain)
-}
-
-type Users []User
-
-func getUsers(r io.Reader) (Users, error) {
-	result := make([]User, 10000)
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return result, err
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for _, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return result, err
+	result := make(DomainStat)
+	var err error
+	var user User
+	e := bufio.NewReader(r)
+	for {
+		line, _, err := e.ReadLine()
+		if err == io.EOF {
+			break
 		}
-		result = append(result,user)
+		if err = json.Unmarshal(line, &user); err != nil {
+			return nil, err
+		}
+		if strings.Contains(user.Email, "."+domain) {
+			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]++
+		}
 	}
 	return result, err
-}
-
-func countDomains(u Users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
-	i:=0
-	for _, user := range u {
-		if strings.Contains(user.Email,"."+domain) {
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]++
-			i++
-		}
-	}
-	return result, nil
 }
