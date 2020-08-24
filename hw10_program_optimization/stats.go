@@ -35,7 +35,8 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		if err = json.Unmarshal(line, &user); err != nil {
 			return DomainStat{}, err
 		}
-		if strings.Contains(user.Email, "."+domain) {
+
+		if  strings.HasSuffix(user.Email, "."+domain) {
 			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]++
 		}
 	}
