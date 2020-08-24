@@ -53,6 +53,6 @@ func TestGetDomainStat(t *testing.T) {
 	t.Run("Case1 test", func(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(dataCase1), "ru")
 		require.NoError(t, err)
-		require.Equal(t, DomainStat{"teklist.ru":1}, result)
+		require.Equal(t, DomainStat{"teklist.ru": 1}, result)
 	})
 }
