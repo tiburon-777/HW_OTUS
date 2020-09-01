@@ -3,7 +3,7 @@ package logger
 import (
 	"errors"
 	amitralog "github.com/amitrai48/logger"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
 	"log"
 	"os"
 	"strings"
@@ -23,7 +23,7 @@ type Log struct {
 
 func New(conf config.Config) (Log, error) {
 
-	if conf.Logger.File=="" || !validLevel(conf.Logger.Level) {
+	if conf.Logger.File == "" || !validLevel(conf.Logger.Level) {
 		return Log{}, errors.New("invalid logger config")
 	}
 
@@ -66,9 +66,9 @@ func (l *Log) Fatal(format string, args ...interface{}) {
 }
 
 func validLevel(level string) bool {
-	l := []string{"debug","info","warn","error","fatal"}
-	for _,v:=range l {
-		if strings.ToLower(level)==v {
+	l := []string{"debug", "info", "warn", "error", "fatal"}
+	for _, v := range l {
+		if strings.ToLower(level) == v {
 			return true
 		}
 	}
