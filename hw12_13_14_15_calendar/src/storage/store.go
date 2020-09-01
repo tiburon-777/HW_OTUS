@@ -7,7 +7,7 @@ import (
 	sqlstorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/sql"
 )
 
-type StoreInterface interface {
+type Interface interface {
 	Save(event event.Event) error
 	Update(event event.Event) error
 	Delete(event event.Event) error
@@ -15,8 +15,8 @@ type StoreInterface interface {
 	Get(id string) (event.Event, bool)
 }
 
-func NewStore(config config.Config) StoreInterface {
-	if config.Storage.In_memory {
+func NewStore(config config.Config) Interface {
+	if config.Storage.InMemory {
 		st := memorystorage.New()
 		return st
 	}

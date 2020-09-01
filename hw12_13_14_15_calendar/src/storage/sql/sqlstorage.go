@@ -2,8 +2,9 @@ package sqlstorage
 
 import (
 	"context"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/event"
 	"sync"
+
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/event"
 )
 
 type Storage struct {
@@ -25,7 +26,7 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s Storage) Save(e event.Event) error {
+func (s *Storage) Save(e event.Event) error {
 	if _, ok := s.Get(e.ID); !ok {
 		s.Mu.Lock()
 		s.Events = append(s.Events, e)
@@ -34,18 +35,18 @@ func (s Storage) Save(e event.Event) error {
 	return nil
 }
 
-func (s Storage) Update(event event.Event) error {
+func (s *Storage) Update(event event.Event) error {
 	return nil
 }
 
-func (s Storage) Delete(event event.Event) error {
+func (s *Storage) Delete(event event.Event) error {
 	return nil
 }
 
-func (s Storage) List() []event.Event {
+func (s *Storage) List() []event.Event {
 	return []event.Event{}
 }
 
-func (s Storage) Get(id string) (event.Event, bool) {
+func (s *Storage) Get(id string) (event.Event, bool) {
 	return event.Event{}, false
 }

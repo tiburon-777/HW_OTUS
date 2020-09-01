@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"os"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
@@ -13,16 +14,16 @@ type Config struct {
 		MuteStdout bool
 	}
 	Storage struct {
-		In_memory bool
-		Sql_host  string
-		Sql_port  string
-		Sql_dbase string
-		Sql_user  string
-		Sql_pass  string
+		InMemory bool
+		SQLHost  string
+		SQLPort  string
+		SQLDbase string
+		SQLUser  string
+		SQLPass  string
 	}
 }
 
-// Confita может быти и хороша, но она не возвращает ошибки, если не может распарсить файл в структуру. Мне не нравится такая "молчаливость"
+// Confita может быти и хороша, но она не возвращает ошибки, если не может распарсить файл в структуру. Мне не нравится такая "молчаливость".
 func NewConfig(configFile string) (Config, error) {
 	f, err := os.Open(configFile)
 	if err != nil {

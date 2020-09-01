@@ -2,19 +2,20 @@ package logger
 
 import (
 	"errors"
-	amitralog "github.com/amitrai48/logger"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
 	"log"
 	"os"
 	"strings"
+
+	amitralog "github.com/amitrai48/logger"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
 )
 
 type Logger interface {
-	Debug(msg string)
-	Info(msg string)
-	Warn(msg string)
-	Error(msg string)
-	Fatal(msg string)
+	Debugf(format string, args ...interface{})
+	Infof(format string, args ...interface{})
+	Warnf(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
+	Fatalf(format string, args ...interface{})
 }
 
 type Log struct {
@@ -22,7 +23,6 @@ type Log struct {
 }
 
 func New(conf config.Config) (Log, error) {
-
 	if conf.Logger.File == "" || !validLevel(conf.Logger.Level) {
 		return Log{}, errors.New("invalid logger config")
 	}
@@ -44,23 +44,23 @@ func New(conf config.Config) (Log, error) {
 	return Log{Logger: l}, nil
 }
 
-func (l Log) Debug(format string, args ...interface{}) {
+func (l Log) Debugf(format string, args ...interface{}) {
 	l.Logger.Debugf(format, args)
 }
 
-func (l *Log) Info(format string, args ...interface{}) {
+func (l *Log) Infof(format string, args ...interface{}) {
 	l.Logger.Infof(format, args)
 }
 
-func (l *Log) Warn(format string, args ...interface{}) {
+func (l *Log) Warnf(format string, args ...interface{}) {
 	l.Logger.Warnf(format, args)
 }
 
-func (l *Log) Error(format string, args ...interface{}) {
+func (l *Log) Errorf(format string, args ...interface{}) {
 	l.Logger.Errorf(format, args)
 }
 
-func (l *Log) Fatal(format string, args ...interface{}) {
+func (l *Log) Fatalf(format string, args ...interface{}) {
 	l.Logger.Fatalf(format, args)
 	os.Exit(2)
 }

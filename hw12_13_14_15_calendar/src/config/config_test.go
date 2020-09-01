@@ -32,8 +32,8 @@ V`)
 	}
 	defer os.Remove(goodfile.Name())
 	goodfile.WriteString(`[storage]
-in_memory = true
-sql_host = "localhost"`)
+inMemory = true
+SQLHost = "localhost"`)
 	goodfile.Sync()
 
 	t.Run("No such file", func(t *testing.T) {
@@ -50,8 +50,8 @@ sql_host = "localhost"`)
 
 	t.Run("TOML reading", func(t *testing.T) {
 		c, e := NewConfig(goodfile.Name())
-		require.Equal(t, true, c.Storage.In_memory)
-		require.Equal(t, "localhost", c.Storage.Sql_host)
+		require.Equal(t, true, c.Storage.InMemory)
+		require.Equal(t, "localhost", c.Storage.SQLHost)
 		require.NoError(t, e)
 	})
 

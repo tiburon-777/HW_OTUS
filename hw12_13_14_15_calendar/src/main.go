@@ -2,14 +2,15 @@ package main
 
 import (
 	"flag"
+	oslog "log"
+	"os"
+	"os/signal"
+
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/app"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/logger"
 	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/server/http"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage"
-	oslog "log"
-	"os"
-	"os/signal"
 )
 
 var configFile string
@@ -47,12 +48,12 @@ func main() {
 		signal.Stop(signals)
 
 		if err := server.Stop(); err != nil {
-			log.Error("failed to stop http server: " + err.Error())
+			log.Errorf("failed to stop http server: " + err.Error())
 		}
 	}()
 
 	if err := server.Start(); err != nil {
-		log.Error("failed to start http server: " + err.Error())
+		log.Errorf("failed to start http server: " + err.Error())
 		os.Exit(1)
 	}
 }

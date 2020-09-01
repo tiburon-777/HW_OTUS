@@ -28,8 +28,8 @@ func TestLoggerLogic(t *testing.T) {
 	}
 
 	t.Run("Messages arround the level", func(t *testing.T) {
-		log.Debug("debug message")
-		log.Error("error message")
+		log.Debugf("debug message")
+		log.Errorf("error message")
 
 		res, err := ioutil.ReadAll(tmpfile)
 		if err != nil {
