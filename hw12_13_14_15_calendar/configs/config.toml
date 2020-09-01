@@ -1,5 +1,11 @@
 [logger]
+file = "./calendar.log"
 level = "INFO"
 
-# TODO
-# ...
+[storage]
+in_memory = false
+sql_host = "localhost"
+sql_port = "5432"
+sql_dbase = "calendar"
+sql_user = "calendar"
+sql_pass = "12345678"
