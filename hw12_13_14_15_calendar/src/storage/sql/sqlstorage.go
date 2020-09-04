@@ -2,17 +2,24 @@ package sqlstorage
 
 import (
 	"context"
-	"sync"
 
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/event"
 )
 
-type Storage struct {
-	Events []event.Event
-	Mu     sync.RWMutex
+type Config struct {
+	Host  string
+	Port  string
+	Dbase string
+	User  string
+	Pass  string
 }
 
-func New() *Storage {
+type Storage struct {
+	//Events []event.Event
+	//Mu     sync.RWMutex
+}
+
+func New(conf Config) *Storage {
 	return &Storage{}
 }
 
@@ -26,12 +33,8 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) Save(e event.Event) error {
-	if _, ok := s.Get(e.ID); !ok {
-		s.Mu.Lock()
-		s.Events = append(s.Events, e)
-		s.Mu.Unlock()
-	}
+func (s *Storage) Create(e event.Event) error {
+	// TODO
 	return nil
 }
 

@@ -25,20 +25,23 @@ func main() {
 	if err != nil {
 		oslog.Fatal("не удалось открыть файл конфигурации:", err.Error())
 	}
-
 	log, err := logger.New(conf)
 	if err != nil {
 		oslog.Fatal("не удалось запустить логер:", err.Error())
 	}
-
-	st := store.NewStore(conf)
-	if err != nil {
-		oslog.Fatal("не удалось инициализировать хранилище:", err.Error())
+	storeConf := store.Config{
+		InMemory: conf.Storage.InMemory,
+		SQLHost:  conf.Storage.SQLHost,
+		SQLPort:  conf.Storage.SQLPort,
+		SQLDbase: conf.Storage.SQLDbase,
+		SQLUser:  conf.Storage.SQLUser,
+		SQLPass:  conf.Storage.SQLPass,
 	}
+	st := store.NewStore(storeConf)
 
 	calendar := app.New(log, st)
 
-	server := internalhttp.NewServer(calendar)
+	server := internalhttp.NewServer(calendar, conf.Server.Address, conf.Server.Port)
 
 	go func() {
 		signals := make(chan os.Signal, 1)

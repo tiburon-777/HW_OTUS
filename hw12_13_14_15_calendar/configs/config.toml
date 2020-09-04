@@ -1,3 +1,7 @@
+[Server]
+Address = "localhost"
+Port = "8080"
+
 [Logger]
 File = "./calendar.log"
 Level = "INFO"

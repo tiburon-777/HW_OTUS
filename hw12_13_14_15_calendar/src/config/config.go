@@ -8,6 +8,10 @@ import (
 )
 
 type Config struct {
+	Server struct {
+		Address string
+		Port    string
+	}
 	Logger struct {
 		File       string
 		Level      string

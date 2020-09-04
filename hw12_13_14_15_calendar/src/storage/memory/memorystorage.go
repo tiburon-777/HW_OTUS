@@ -1,19 +1,26 @@
 package memorystorage
 
 import (
+	"sync"
+
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/event"
 )
 
 type Storage struct {
-	//events []event.Event
-	//mu     sync.RWMutex
+	Events []event.Event
+	Mu     sync.RWMutex
 }
 
 func New() *Storage {
 	return &Storage{}
 }
 
-func (s *Storage) Save(event event.Event) error {
+func (s *Storage) Create(event event.Event) error {
+	if _, ok := s.Get(event.ID); !ok {
+		s.Mu.Lock()
+		s.Events = append(s.Events, event)
+		s.Mu.Unlock()
+	}
 	return nil
 }
 

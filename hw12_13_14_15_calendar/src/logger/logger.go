@@ -10,7 +10,7 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
 )
 
-type Logger interface {
+type Interface interface {
 	Debugf(format string, args ...interface{})
 	Infof(format string, args ...interface{})
 	Warnf(format string, args ...interface{})
@@ -18,13 +18,13 @@ type Logger interface {
 	Fatalf(format string, args ...interface{})
 }
 
-type Log struct {
+type Logger struct {
 	Logger amitralog.Logger
 }
 
-func New(conf config.Config) (Log, error) {
+func New(conf config.Config) (Interface, error) {
 	if conf.Logger.File == "" || !validLevel(conf.Logger.Level) {
-		return Log{}, errors.New("invalid logger config")
+		return nil, errors.New("invalid logger config")
 	}
 
 	c := amitralog.Configuration{
@@ -41,26 +41,26 @@ func New(conf config.Config) (Log, error) {
 		log.Fatalf("Could not instantiate log %s", err.Error())
 	}
 	l := amitralog.WithFields(amitralog.Fields{"hw": "12"})
-	return Log{Logger: l}, nil
+	return l, nil
 }
 
-func (l Log) Debugf(format string, args ...interface{}) {
+func (l *Logger) Debugf(format string, args ...interface{}) {
 	l.Logger.Debugf(format, args)
 }
 
-func (l *Log) Infof(format string, args ...interface{}) {
+func (l *Logger) Infof(format string, args ...interface{}) {
 	l.Logger.Infof(format, args)
 }
 
-func (l *Log) Warnf(format string, args ...interface{}) {
+func (l *Logger) Warnf(format string, args ...interface{}) {
 	l.Logger.Warnf(format, args)
 }
 
-func (l *Log) Errorf(format string, args ...interface{}) {
+func (l *Logger) Errorf(format string, args ...interface{}) {
 	l.Logger.Errorf(format, args)
 }
 
-func (l *Log) Fatalf(format string, args ...interface{}) {
+func (l *Logger) Fatalf(format string, args ...interface{}) {
 	l.Logger.Fatalf(format, args)
 	os.Exit(2)
 }

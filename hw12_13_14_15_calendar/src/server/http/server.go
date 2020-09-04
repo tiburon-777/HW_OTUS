@@ -1,26 +1,25 @@
 package internalhttp
 
+import (
+	"net"
+	"net/http"
+
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/app"
+)
+
 type Server struct {
-	// TODO
+	server *http.Server
+	app    app.Interface
 }
 
-type Application interface {
-	// TODO
-}
-
-func NewServer(app Application) *Server {
-	return &Server{}
+func NewServer(app app.Interface, address string, port string) *Server {
+	return &Server{server: &http.Server{Addr: net.JoinHostPort(address, port), Handler: http.HandlerFunc(app.Handler)}, app: app}
 }
 
 func (s *Server) Start() error {
-	// TODO
-	return nil
+	return s.server.ListenAndServe()
 }
 
 func (s *Server) Stop() error {
-	//ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	// TODO
-	return nil
+	return s.server.Close()
 }
-
-// TODO
