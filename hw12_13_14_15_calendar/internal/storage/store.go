@@ -1,9 +1,9 @@
 package store
 
 import (
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/event"
-	memorystorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/memory"
-	sqlstorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage/sql"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/event"
+	memorystorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 type Config struct {
@@ -16,11 +16,11 @@ type Config struct {
 }
 
 type StorageInterface interface {
-	Create(event event.Event) error
-	Update(event event.Event) error
-	Delete(event event.Event) error
-	List() []event.Event
-	Get(id string) (event.Event, bool)
+	Create(event event.Event) (int64, error)
+	Update(id int64, event event.Event) error
+	Delete(id int64) error
+	List() (map[int64]event.Event, error)
+	GetByID(id int64) (event.Event, bool)
 }
 
 func NewStore(conf Config) StorageInterface {

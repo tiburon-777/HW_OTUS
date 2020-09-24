@@ -6,11 +6,12 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/app"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/logger"
-	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/server/http"
-	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/storage"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/http"
+	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string

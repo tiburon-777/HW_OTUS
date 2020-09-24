@@ -2,7 +2,7 @@ package logger
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/src/config"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
 	"io/ioutil"
 	oslog "log"
 	"os"

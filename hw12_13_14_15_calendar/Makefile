@@ -2,15 +2,15 @@ build:
 	go build -o ./bin/calendar ./src
 
 run:
-	go run ./src/calendar/main.go -config ./configs/config.toml
+	go run ./cmd/calendar/main.go -config ./configs/config.toml
 
 test:
-	go test -race ./src/...
+	go test -race ./internal/...
 
 lint: install-lint-deps
-	golangci-lint run ./...
+	golangci-lint run .cmd/... ./internal/...
 
 install-lint-deps:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.30.0
 
 .PHONY: build run test lint
