@@ -13,7 +13,7 @@ type Storage struct {
 }
 
 func New() *Storage {
-	return &Storage{}
+	return &Storage{Events: make(map[int64]event.Event)}
 }
 
 func (s *Storage) Create(event event.Event) (int64, error) {
@@ -46,5 +46,5 @@ func (s *Storage) GetByID(id int64) (event.Event, bool) {
 	if s.Events[id].Title == "" {
 		return event.Event{}, false
 	}
-	return s.Events[id], false
+	return s.Events[id], true
 }

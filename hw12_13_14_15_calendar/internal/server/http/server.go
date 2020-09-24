@@ -32,6 +32,6 @@ func (s *Server) Stop() error {
 	if err := s.server.Close(); err != nil {
 		return err
 	}
-	s.app.Logger.Infof("Server starting")
+	s.app.Logger.Infof("Server stoped")
 	return nil
 }
