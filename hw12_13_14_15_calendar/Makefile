@@ -1,5 +1,5 @@
 build:
-	go build -o ./bin/calendar ./src
+	go build -o ./bin/calendar ./cmd/calendar/main.go
 
 run:
 	go run ./cmd/calendar/main.go -config ./configs/config.toml
