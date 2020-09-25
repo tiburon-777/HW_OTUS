@@ -16,11 +16,11 @@ type Config struct {
 }
 
 type StorageInterface interface {
-	Create(event event.Event) (int64, error)
-	Update(id int64, event event.Event) error
-	Delete(id int64) error
-	List() (map[int64]event.Event, error)
-	GetByID(id int64) (event.Event, bool)
+	Create(event event.Event) (event.ID, error)
+	Update(id event.ID, event event.Event) error
+	Delete(id event.ID) error
+	List() (map[event.ID]event.Event, error)
+	GetByID(id event.ID) (event.Event, bool)
 }
 
 func NewStore(conf Config) StorageInterface {

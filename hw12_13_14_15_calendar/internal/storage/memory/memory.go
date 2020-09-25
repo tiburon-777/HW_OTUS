@@ -7,16 +7,16 @@ import (
 )
 
 type Storage struct {
-	Events map[int64]event.Event
-	lastID int64
+	Events map[event.ID]event.Event
+	lastID event.ID
 	Mu     sync.RWMutex
 }
 
 func New() *Storage {
-	return &Storage{Events: make(map[int64]event.Event)}
+	return &Storage{Events: make(map[event.ID]event.Event)}
 }
 
-func (s *Storage) Create(event event.Event) (int64, error) {
+func (s *Storage) Create(event event.Event) (event.ID, error) {
 	s.Mu.Lock()
 	s.lastID++
 	s.Events[s.lastID] = event
@@ -24,25 +24,25 @@ func (s *Storage) Create(event event.Event) (int64, error) {
 	return s.lastID, nil
 }
 
-func (s *Storage) Update(id int64, event event.Event) error {
+func (s *Storage) Update(id event.ID, event event.Event) error {
 	s.Mu.Lock()
 	s.Events[id] = event
 	s.Mu.Unlock()
 	return nil
 }
 
-func (s *Storage) Delete(id int64) error {
+func (s *Storage) Delete(id event.ID) error {
 	s.Mu.Lock()
 	delete(s.Events, id)
 	s.Mu.Unlock()
 	return nil
 }
 
-func (s *Storage) List() (map[int64]event.Event, error) {
+func (s *Storage) List() (map[event.ID]event.Event, error) {
 	return s.Events, nil
 }
 
-func (s *Storage) GetByID(id int64) (event.Event, bool) {
+func (s *Storage) GetByID(id event.ID) (event.Event, bool) {
 	if s.Events[id].Title == "" {
 		return event.Event{}, false
 	}

@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+type ID int64
+
 type Event struct {
 	Title      string
 	Date       time.Time

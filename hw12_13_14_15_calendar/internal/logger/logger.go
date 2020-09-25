@@ -44,23 +44,23 @@ func New(conf config.Config) (Interface, error) {
 	return l, nil
 }
 
-func (l *Logger) Debugf(format string, args ...interface{}) {
+func (l Logger) Debugf(format string, args ...interface{}) {
 	l.Logger.Debugf(format, args)
 }
 
-func (l *Logger) Infof(format string, args ...interface{}) {
+func (l Logger) Infof(format string, args ...interface{}) {
 	l.Logger.Infof(format, args)
 }
 
-func (l *Logger) Warnf(format string, args ...interface{}) {
+func (l Logger) Warnf(format string, args ...interface{}) {
 	l.Logger.Warnf(format, args)
 }
 
-func (l *Logger) Errorf(format string, args ...interface{}) {
+func (l Logger) Errorf(format string, args ...interface{}) {
 	l.Logger.Errorf(format, args)
 }
 
-func (l *Logger) Fatalf(format string, args ...interface{}) {
+func (l Logger) Fatalf(format string, args ...interface{}) {
 	l.Logger.Fatalf(format, args)
 	os.Exit(2)
 }

@@ -38,25 +38,26 @@ func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
-func (s *Storage) Create(event event.Event) (int64, error) {
+func (s *Storage) Create(ev event.Event) (event.ID, error) {
 	res, err := s.db.Exec(
 		`INSERT INTO events 
 		(title, date, latency, note, userID, notifyTime) VALUES 
 		($1, $2, $3, $4, $5, $6)`,
-		event.Title,
-		event.Date.Format(dateTimeLayout),
-		event.Latency,
-		event.Note,
-		event.UserID,
-		event.NotifyTime,
+		ev.Title,
+		ev.Date.Format(dateTimeLayout),
+		ev.Latency,
+		ev.Note,
+		ev.UserID,
+		ev.NotifyTime,
 	)
 	if err != nil {
 		return -1, err
 	}
-	return res.LastInsertId()
+	idint64, err := res.LastInsertId()
+	return event.ID(idint64), err
 }
 
-func (s *Storage) Update(id int64, event event.Event) error {
+func (s *Storage) Update(id event.ID, event event.Event) error {
 	_, err := s.db.Exec(
 		`UPDATE events set 
 		title=$1, date=$2, latency=$3, note=$4, userID=$5, notifyTime=$6
@@ -72,7 +73,7 @@ func (s *Storage) Update(id int64, event event.Event) error {
 	return err
 }
 
-func (s *Storage) Delete(id int64) error {
+func (s *Storage) Delete(id event.ID) error {
 	_, err := s.db.Exec(
 		`DELETE from events where id=$1`,
 		id,
@@ -80,35 +81,35 @@ func (s *Storage) Delete(id int64) error {
 	return err
 }
 
-func (s *Storage) List() (map[int64]event.Event, error) {
-	res := make(map[int64]event.Event)
+func (s *Storage) List() (map[event.ID]event.Event, error) {
+	res := make(map[event.ID]event.Event)
 	results, err := s.db.Query(
 		`SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
 	if err != nil {
-		return map[int64]event.Event{}, err
+		return map[event.ID]event.Event{}, err
 	}
 	defer results.Close()
 	for results.Next() {
-		var id int64
+		var id event.ID
 		var evt event.Event
 		var dateRaw string
 		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
 		if err != nil {
-			return map[int64]event.Event{}, err
+			return map[event.ID]event.Event{}, err
 		}
 		evt.Date, err = time.Parse(dateTimeLayout, dateRaw)
 		if err != nil {
-			return map[int64]event.Event{}, err
+			return map[event.ID]event.Event{}, err
 		}
 		res[id] = evt
 	}
 	if results.Err() != nil {
-		return map[int64]event.Event{}, results.Err()
+		return map[event.ID]event.Event{}, results.Err()
 	}
 	return res, nil
 }
 
-func (s *Storage) GetByID(id int64) (event.Event, bool) {
+func (s *Storage) GetByID(id event.ID) (event.Event, bool) {
 	var res event.Event
 	var dateRaw string
 	err := s.db.QueryRow(
