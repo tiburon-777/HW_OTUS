@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
@@ -40,7 +41,18 @@ func (a *App) Handler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		a.Logger.Infof("receive %s request from IP %s", r.Method, r.RemoteAddr)
+		start := time.Now()
+		defer func() {
+			var path, useragent string
+			if r.URL != nil {
+				path = r.URL.Path
+			}
+			if len(r.UserAgent()) > 0 {
+				useragent = r.UserAgent()
+			}
+			latency := time.Since(start)
+			a.Logger.Infof("receive %s request from IP: %s on path: %s, duration: %s useragent: %s ", r.Method, r.RemoteAddr, path, latency, useragent)
+		}()
 		next.ServeHTTP(w, r)
 	})
 }

@@ -66,11 +66,6 @@ func (l *Logger) Fatalf(format string, args ...interface{}) {
 }
 
 func validLevel(level string) bool {
-	l := []string{"debug", "info", "warn", "error", "fatal"}
-	for _, v := range l {
-		if strings.ToLower(level) == v {
-			return true
-		}
-	}
-	return false
+	var l = map[string]int{"debug": 1, "info": 1, "warn": 1, "error": 1, "fatal": 1}
+	return l[strings.ToLower(level)] == 1
 }

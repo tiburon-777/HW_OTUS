@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"net"
 	"net/http"
 
@@ -11,13 +10,10 @@ import (
 type Server struct {
 	server *http.Server
 	app    app.App
-	ctx    context.Context
-	cancel context.CancelFunc
 }
 
 func NewServer(app *app.App, address string, port string) *Server {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &Server{server: &http.Server{Addr: net.JoinHostPort(address, port), Handler: app.LoggingMiddleware(app.Handler)}, app: *app, ctx: ctx, cancel: cancel}
+	return &Server{server: &http.Server{Addr: net.JoinHostPort(address, port), Handler: app.LoggingMiddleware(app.Handler)}, app: *app}
 }
 
 func (s *Server) Start() error {
