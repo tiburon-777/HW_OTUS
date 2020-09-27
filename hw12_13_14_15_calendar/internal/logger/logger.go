@@ -22,8 +22,10 @@ type Logger struct {
 	Logger amitralog.Logger
 }
 
+var validLevel = map[string]bool{"debug": true, "info":true, "warn": true, "error": true, "fatal": true}
+
 func New(conf config.Config) (Interface, error) {
-	if conf.Logger.File == "" || !validLevel(conf.Logger.Level) {
+	if conf.Logger.File == "" || !validLevel[strings.ToLower(conf.Logger.Level)] {
 		return nil, errors.New("invalid logger config")
 	}
 
@@ -63,9 +65,4 @@ func (l *Logger) Errorf(format string, args ...interface{}) {
 func (l *Logger) Fatalf(format string, args ...interface{}) {
 	l.Logger.Fatalf(format, args)
 	os.Exit(2)
-}
-
-func validLevel(level string) bool {
-	var l = map[string]int{"debug": 1, "info": 1, "warn": 1, "error": 1, "fatal": 1}
-	return l[strings.ToLower(level)] == 1
 }

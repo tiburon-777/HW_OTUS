@@ -83,10 +83,9 @@ func (s *Storage) Delete(id event.ID) error {
 
 func (s *Storage) List() (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
-	results, err := s.db.Query(
-		`SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
+	results, err := s.db.Query( `SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
 	if err != nil {
-		return map[event.ID]event.Event{}, err
+		return nil, err
 	}
 	defer results.Close()
 	for results.Next() {
@@ -95,16 +94,16 @@ func (s *Storage) List() (map[event.ID]event.Event, error) {
 		var dateRaw string
 		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
 		if err != nil {
-			return map[event.ID]event.Event{}, err
+			return nil, err
 		}
 		evt.Date, err = time.Parse(dateTimeLayout, dateRaw)
 		if err != nil {
-			return map[event.ID]event.Event{}, err
+			return nil, err
 		}
 		res[id] = evt
 	}
 	if results.Err() != nil {
-		return map[event.ID]event.Event{}, results.Err()
+		return nil, results.Err()
 	}
 	return res, nil
 }
