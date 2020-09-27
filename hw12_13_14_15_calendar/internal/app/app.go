@@ -2,28 +2,57 @@ package app
 
 import (
 	"context"
+	"net/http"
+	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
+	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/event"
 )
 
+type Interface interface {
+	CreateEvent(ctx context.Context, title string) (err error)
+	Handler(w http.ResponseWriter, r *http.Request)
+	LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc
+}
+
 type App struct {
-	// TODO
+	Storage store.StorageInterface
+	Logger  logger.Interface
 }
 
-type Logger interface {
-	// TODO
+func New(logger logger.Interface, storage store.StorageInterface) *App {
+	return &App{Logger: logger, Storage: storage}
 }
 
-type Storage interface {
-	// TODO
+func (a *App) CreateEvent(ctx context.Context, title string) (err error) {
+	_, err = a.Storage.Create(event.Event{Title: title})
+	if err != nil {
+		a.Logger.Errorf("can not create event")
+	}
+	a.Logger.Infof("event created")
+	return err
 }
 
-func New(logger Logger, storage Storage) *App {
-	return &App{}
+func (a *App) Handler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	_, _ = w.Write([]byte("Hello! I'm calendar app!"))
 }
 
-func (a *App) CreateEvent(ctx context.Context, id string, title string) error {
-	return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+func (a *App) LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		defer func() {
+			var path, useragent string
+			if r.URL != nil {
+				path = r.URL.Path
+			}
+			if len(r.UserAgent()) > 0 {
+				useragent = r.UserAgent()
+			}
+			latency := time.Since(start)
+			a.Logger.Infof("receive %s request from IP: %s on path: %s, duration: %s useragent: %s ", r.Method, r.RemoteAddr, path, latency, useragent)
+		}()
+		next.ServeHTTP(w, r)
+	})
 }
-
-// TODO
