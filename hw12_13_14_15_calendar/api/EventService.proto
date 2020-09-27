@@ -2,6 +2,46 @@ syntax = "proto3";
 
 package event;
 
-message Event {
-    // TODO
+option go_package = "event";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+service CalendarRPC {
+  rpc Create(event) returns (eventID);
+  rpc Update(eventWithID) returns (google.protobuf.Empty);
+  rpc Delete(eventID) returns (google.protobuf.Empty);
+  rpc List(google.protobuf.Empty) returns (eventList);
+  rpc GetByID(eventID) returns (eventList);
+  rpc GetByDay(date) returns (eventList);
+  rpc GetByWeek(date) returns (eventList);
+  rpc GetByMonth(date) returns (eventList);
+}
+
+message event {
+  string ID  = 1;
+  string title = 2;
+  google.protobuf.Timestamp date = 3;
+  google.protobuf.Duration latency = 4;
+  string note = 5;
+  string UserID = 6;
+  google.protobuf.Duration notyfyTime = 7;
+}
+
+message eventList {
+  repeated event events = 1;
+}
+
+message eventID {
+  string ID  = 1;
+}
+
+message eventWithID {
+  string ID  = 1;
+  event event = 2;
+}
+
+message date {
+  google.protobuf.Timestamp date = 1;
 }
