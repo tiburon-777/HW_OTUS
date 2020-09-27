@@ -22,7 +22,7 @@ type Logger struct {
 	Logger amitralog.Logger
 }
 
-var validLevel = map[string]bool{"debug": true, "info":true, "warn": true, "error": true, "fatal": true}
+var validLevel = map[string]bool{"debug": true, "info": true, "warn": true, "error": true, "fatal": true}
 
 func New(conf config.Config) (Interface, error) {
 	if conf.Logger.File == "" || !validLevel[strings.ToLower(conf.Logger.Level)] {

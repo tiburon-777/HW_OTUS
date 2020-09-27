@@ -83,7 +83,7 @@ func (s *Storage) Delete(id event.ID) error {
 
 func (s *Storage) List() (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
-	results, err := s.db.Query( `SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
+	results, err := s.db.Query(`SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
