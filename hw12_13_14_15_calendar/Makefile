@@ -1,3 +1,5 @@
+cdir = $(shell pwd)
+
 build:
 	go build -o ./bin/calendar ./cmd/calendar/main.go
 
@@ -15,4 +17,10 @@ install-lint-deps:
 
 generate:
 	protoc  --go_out=grpc:internal grpc/calendar.proto
+
+gen2:
+	protoc  -I /usr/local/include  -I ${cdir}/grpc  --go_out=plugins=grpc:${cdir}/internal/grpc \
+	--grpc-gateway_out=logtostderr=true:${cdir}/internal/grpc \
+	${cdir}/grpc/grpc.proto
+
 .PHONY: build run test lint

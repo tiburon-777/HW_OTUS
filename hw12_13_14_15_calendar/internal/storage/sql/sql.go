@@ -123,3 +123,51 @@ func (s *Storage) GetByID(id event.ID) (event.Event, bool) {
 	res.Date = dateParced
 	return res, true
 }
+
+func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event.Event, error) {
+	res := make(map[event.ID]event.Event)
+	results, err := s.db.Query(
+		`SELECT (id,title,date,latency,note,userID,notifyTime)
+				from events
+				where 	(date>$1 AND date<$2) OR
+						(date+latency>$1 AND date+latency<$2) OR
+						(date<$1 AND date+latency>$2)
+				ORDER BY id`,
+		startDate,
+		getEndDate(startDate, rng))
+	if err != nil {
+		return nil, err
+	}
+	defer results.Close()
+	for results.Next() {
+		var id event.ID
+		var evt event.Event
+		var dateRaw string
+		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
+		if err != nil {
+			return nil, err
+		}
+		evt.Date, err = time.Parse(dateTimeLayout, dateRaw)
+		if err != nil {
+			return nil, err
+		}
+		res[id] = evt
+	}
+	if results.Err() != nil {
+		return nil, results.Err()
+	}
+	return res, nil
+}
+
+func getEndDate(startDate time.Time, rng string) time.Time {
+	switch rng {
+	case "DAY":
+		return startDate.AddDate(0, 0, 1)
+	case "WEEK":
+		return startDate.AddDate(0, 0, 7)
+	case "MONTH":
+		return startDate.AddDate(0, 1, 0)
+	default:
+		return startDate
+	}
+}

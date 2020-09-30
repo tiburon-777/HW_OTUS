@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpc"
+	googrpc "google.golang.org/grpc"
 	oslog "log"
 	"os"
 	"os/signal"
@@ -10,6 +12,7 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/http"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
 )
@@ -42,7 +45,9 @@ func main() {
 
 	calendar := app.New(log, st)
 
-	server := internalhttp.NewServer(calendar, conf.Server.Address, conf.Server.Port)
+	serverHTTP := internalhttp.NewServer(calendar, conf.Server.Address, conf.Server.Port)
+	serverGRPC := googrpc.NewServer()
+	grpc.RegisterGrpcServer(serverGRPC, internalgrpc.Service{})
 
 	go func() {
 		signals := make(chan os.Signal, 1)
@@ -51,12 +56,12 @@ func main() {
 		<-signals
 		signal.Stop(signals)
 
-		if err := server.Stop(); err != nil {
+		if err := serverHTTP.Stop(); err != nil {
 			log.Errorf("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	if err := server.Start(); err != nil {
+	if err := serverHTTP.Start(); err != nil {
 		log.Errorf("failed to start http server: " + err.Error())
 		os.Exit(1)
 	}
