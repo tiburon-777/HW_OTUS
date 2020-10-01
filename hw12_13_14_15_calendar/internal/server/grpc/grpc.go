@@ -8,9 +8,26 @@ import (
 
 type Service struct{}
 
-func (s Service) Create(context.Context, *grpc.Event) (*grpc.EventID, error)      {}
-func (s Service) Update(context.Context, *grpc.EventWthID) (*empty.Empty, error)  {}
-func (s Service) Delete(context.Context, *grpc.EventID) (*empty.Empty, error)     {}
-func (s Service) List(context.Context, *empty.Empty) (*grpc.EventList, error)     {}
-func (s Service) GetByID(context.Context, *grpc.EventID) (*grpc.EventList, error) {}
-func (s Service) GetByDate(context.Context, *grpc.Date) (*grpc.EventList, error)  {}
+func (s Service) Create(context.Context, *grpc.Event) (*grpc.EventID, error) {
+	return nil, nil
+}
+
+func (s Service) Update(context.Context, *grpc.EventWthID) (*empty.Empty, error) {
+	return nil, nil
+}
+
+func (s Service) Delete(context.Context, *grpc.EventID) (*empty.Empty, error) {
+	return nil, nil
+}
+
+func (s Service) List(context.Context, *empty.Empty) (*grpc.EventList, error) {
+	return nil, nil
+}
+
+func (s Service) GetByID(context.Context, *grpc.EventID) (*grpc.EventList, error) {
+	return nil, nil
+}
+
+func (s Service) GetByDate(context.Context, *grpc.Date) (*grpc.EventList, error) {
+	return nil, nil
+}
