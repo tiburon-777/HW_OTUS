@@ -12,6 +12,10 @@ type Config struct {
 		Address string
 		Port    string
 	}
+	Grpc struct {
+		Address string
+		Port    string
+	}
 	Logger struct {
 		File       string
 		Level      string

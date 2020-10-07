@@ -5,6 +5,7 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpc"
 	googrpc "google.golang.org/grpc"
 	oslog "log"
+	"net"
 	"os"
 	"os/signal"
 
@@ -12,7 +13,6 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
-	internalgrpc "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/http"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
 )
@@ -46,8 +46,14 @@ func main() {
 	calendar := app.New(log, st)
 
 	serverHTTP := internalhttp.NewServer(calendar, conf.Server.Address, conf.Server.Port)
+
+	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.Grpc.Address, conf.Grpc.Port))
+	if err != nil {
+		log.Fatalf("failed to listen %v", err)
+	}
 	serverGRPC := googrpc.NewServer()
-	grpc.RegisterGrpcServer(serverGRPC, internalgrpc.Service{})
+	grpc.RegisterGrpcServer(serverGRPC, grpc.Service{*calendar})
+	serverGRPC.Serve(listnGrpc)
 
 	go func() {
 		signals := make(chan os.Signal, 1)

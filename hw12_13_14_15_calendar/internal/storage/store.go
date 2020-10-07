@@ -1,10 +1,11 @@
 package store
 
 import (
+	"time"
+
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/event"
 	memorystorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/sql"
-	"time"
 )
 
 type Config struct {

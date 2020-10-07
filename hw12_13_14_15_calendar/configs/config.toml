@@ -2,6 +2,10 @@
 Address = "localhost"
 Port = "8080"
 
+[Grpc]
+Address = "localhost"
+Port = "50051"
+
 [Logger]
 File = "./calendar.log"
 Level = "INFO"
