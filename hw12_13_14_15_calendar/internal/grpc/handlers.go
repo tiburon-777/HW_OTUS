@@ -13,15 +13,24 @@ type Service struct {
 
 func (s Service) Create(ctx context.Context, e *Event) (*EventID, error) {
 	var res EventID
-	//var tmp = event.Event{e.Title, e.Date.(time.Time), e.Latency, e.Note, e.UserID, e.NotifyTime}
-	//t, err := s.App.Storage.Create(tmp)
-	//if err != nil { return nil, err }
-	//res.ID = string(t)
+	ce, err := pbevent2event(e)
+	if err != nil {
+		return nil, err
+	}
+	t, err := s.App.Storage.Create(ce)
+	if err != nil {
+		return nil, err
+	}
+	res.ID = int64(t)
 	return &res, nil
 }
 
 func (s Service) Update(ctx context.Context, e *EventWthID) (*empty.Empty, error) {
-	return nil, nil
+	cid, ce, err := pbeventWitID2eventAndID(e)
+	if err != nil {
+		return nil, err
+	}
+	return nil, s.App.Storage.Update(cid, ce)
 }
 
 func (s Service) Delete(ctx context.Context, e *EventID) (*empty.Empty, error) {

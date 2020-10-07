@@ -7,12 +7,12 @@ import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
 message Event {
-  string ID  = 1;
+  int64 ID  = 1;
   string Title = 2;
   google.protobuf.Timestamp Date = 3;
   google.protobuf.Duration Latency = 4;
   string Note = 5;
-  string UserID = 6;
+  int64 UserID = 6;
   google.protobuf.Duration NotifyTime = 7;
 }
 
@@ -21,11 +21,11 @@ message EventList {
 }
 
 message EventID {
-  string ID  = 1;
+  int64 ID  = 1;
 }
 
 message EventWthID {
-  string ID  = 1;
+  int64 ID  = 1;
   Event Event = 2;
 }
 

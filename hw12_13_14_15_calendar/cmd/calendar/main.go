@@ -2,8 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpc"
-	googrpc "google.golang.org/grpc"
 	oslog "log"
 	"net"
 	"os"
@@ -12,9 +10,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpc"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/http"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
+	googrpc "google.golang.org/grpc"
 )
 
 var configFile string
@@ -52,8 +52,11 @@ func main() {
 		log.Fatalf("failed to listen %v", err)
 	}
 	serverGRPC := googrpc.NewServer()
-	grpc.RegisterGrpcServer(serverGRPC, grpc.Service{*calendar})
-	serverGRPC.Serve(listnGrpc)
+	grpc.RegisterGrpcServer(serverGRPC, grpc.Service{App: *calendar})
+	if err := serverGRPC.Serve(listnGrpc); err != nil {
+		log.Errorf("failed to start grpc server: " + err.Error())
+		os.Exit(1)
+	}
 
 	go func() {
 		signals := make(chan os.Signal, 1)
