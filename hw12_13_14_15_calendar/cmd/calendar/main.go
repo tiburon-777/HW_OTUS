@@ -9,7 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpc"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpcserver"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/http"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
@@ -51,7 +51,7 @@ func main() {
 		}
 	}()
 
-	serverGRPC := grpc.New(calendar)
+	serverGRPC := grpcserver.New(calendar)
 	go func() {
 		if err := serverGRPC.Start(conf); err != nil {
 			log.Errorf("failed to start grpc server: " + err.Error())

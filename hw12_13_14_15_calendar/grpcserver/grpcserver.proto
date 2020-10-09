@@ -1,5 +1,8 @@
 syntax = "proto3";
 
+package grpcserver;
+
+option go_package = "grpcserver";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";

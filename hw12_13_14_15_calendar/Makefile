@@ -16,6 +16,6 @@ install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.30.0
 
 generate:
-	protoc  -I ./grpc  --go_out=plugins=grpc:./internal/grpc --grpc-gateway_out=logtostderr=true:./internal/grpc ./grpc/grpc.proto
+	protoc  -I ./grpcserver  --go_out=plugins=grpc:./internal/grpcserver --grpc-gateway_out=logtostderr=true:./internal/grpcserver ./grpcserver/grpcserver.proto
 
 .PHONY: build run test lint
