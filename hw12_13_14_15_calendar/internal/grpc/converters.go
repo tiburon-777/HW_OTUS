@@ -1,6 +1,8 @@
 package grpc
 
 import (
+	"time"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/event"
 )
@@ -37,4 +39,23 @@ func pbeventWitID2eventAndID(pbe *EventWthID) (id event.ID, evt event.Event, err
 		return 0, event.Event{}, err
 	}
 	return event.ID(pbe.ID), evt, nil
+}
+
+func evtMap2pbEventList(evtMap map[event.ID]event.Event) (*EventList, error) {
+	var events = &EventList{}
+	var err error
+	for k, v := range evtMap {
+		evt := Event{ID: int64(k), Title: v.Title, Latency: ptypes.DurationProto(v.Latency), Note: v.Note, UserID: v.UserID, NotifyTime: ptypes.DurationProto(v.NotifyTime)}
+		evt.Date, err = ptypes.TimestampProto(v.Date)
+		if err != nil {
+			return nil, err
+		}
+		events.Events = append(events.Events, &evt)
+	}
+	return events, err
+}
+
+func pbDate2Time(e *Date) (start time.Time, qrange string, err error) {
+	date, err := ptypes.Timestamp(e.Date)
+	return date, string(e.Range), err
 }
