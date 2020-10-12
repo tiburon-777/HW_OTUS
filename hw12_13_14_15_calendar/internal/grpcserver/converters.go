@@ -7,7 +7,7 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/event"
 )
 
-func pbevent2event(pbe *Event) (res event.Event, err error) {
+func (s Service) buildStorageEvent (pbe *CreateReq) (res event.Event, err error) {
 	res = event.Event{Title: pbe.Title, Note: pbe.Note, UserID: pbe.UserID}
 	res.Date, err = ptypes.Timestamp(pbe.Date)
 	if err != nil {
@@ -24,7 +24,7 @@ func pbevent2event(pbe *Event) (res event.Event, err error) {
 	return res, nil
 }
 
-func pbeventWitID2eventAndID(pbe *EventWthID) (id event.ID, evt event.Event, err error) {
+func (s Service) buildStorageEventAndID(pbe *UpdateReq) (id event.ID, evt event.Event, err error) {
 	evt = event.Event{Title: pbe.Event.Title, Note: pbe.Event.Note, UserID: pbe.Event.UserID}
 	evt.Date, err = ptypes.Timestamp(pbe.Event.Date)
 	if err != nil {
@@ -41,8 +41,9 @@ func pbeventWitID2eventAndID(pbe *EventWthID) (id event.ID, evt event.Event, err
 	return event.ID(pbe.ID), evt, nil
 }
 
-func evtMap2pbEventList(evtMap map[event.ID]event.Event) (*EventList, error) {
-	var events = &EventList{}
+
+func (s Service) buildEventList(evtMap map[event.ID]event.Event) ([]*Event, error) {
+	var events = []*Event{}
 	var err error
 	for k, v := range evtMap {
 		evt := Event{ID: int64(k), Title: v.Title, Latency: ptypes.DurationProto(v.Latency), Note: v.Note, UserID: v.UserID, NotifyTime: ptypes.DurationProto(v.NotifyTime)}
@@ -50,12 +51,12 @@ func evtMap2pbEventList(evtMap map[event.ID]event.Event) (*EventList, error) {
 		if err != nil {
 			return nil, err
 		}
-		events.Events = append(events.Events, &evt)
+		events = append(events, &evt)
 	}
 	return events, err
 }
 
-func pbDate2Time(e *Date) (start time.Time, qrange string, err error) {
+func (s Service) buildTimeAndRange(e *GetByDateReq) (start time.Time, qrange string, err error) {
 	date, err := ptypes.Timestamp(e.Date)
 	return date, string(e.Range), err
 }

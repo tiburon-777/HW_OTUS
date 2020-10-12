@@ -8,27 +8,30 @@ import (
 )
 
 type Config struct {
-	Server struct {
-		Address string
-		Port    string
-	}
-	Grpc struct {
-		Address string
-		Port    string
-	}
-	Logger struct {
-		File       string
-		Level      string
-		MuteStdout bool
-	}
-	Storage struct {
-		InMemory bool
-		SQLHost  string
-		SQLPort  string
-		SQLDbase string
-		SQLUser  string
-		SQLPass  string
-	}
+	Server Server
+	Grpc Server
+	Logger Logger
+	Storage Storage
+}
+
+type Server struct {
+	Address string
+	Port    string
+}
+
+type Logger struct {
+	File       string
+	Level      string
+	MuteStdout bool
+}
+
+type Storage struct {
+	InMemory bool
+	SQLHost  string
+	SQLPort  string
+	SQLDbase string
+	SQLUser  string
+	SQLPass  string
 }
 
 // Confita может быти и хороша, но она не возвращает ошибки, если не может распарсить файл в структуру. Мне не нравится такая "молчаливость".
