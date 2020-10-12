@@ -56,9 +56,9 @@ func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event
 	defer s.Mu.Unlock()
 	res := make(map[event.ID]event.Event)
 	for k, v := range s.Events {
-		if (v.Date.After(startDate) && v.Date.Before(endDate)) ||
-			(v.Date.Add(v.Latency).Before(v.Date) && v.Date.Add(v.Latency).After(v.Date)) ||
-			(v.Date.Before(startDate)) && (v.Date.Add(v.Latency).After(endDate)) {
+		if afterOrEqual(v.Date, startDate) && beforeOrEqual(v.Date, endDate) ||
+			beforeOrEqual(v.Date.Add(v.Latency), v.Date) && afterOrEqual(v.Date.Add(v.Latency), v.Date) ||
+			(beforeOrEqual(v.Date, startDate) && afterOrEqual(v.Date.Add(v.Latency), endDate)) {
 			res[k] = v
 		}
 	}
@@ -76,4 +76,12 @@ func getEndDate(startDate time.Time, rng string) time.Time {
 	default:
 		return startDate
 	}
+}
+
+func afterOrEqual(time1 time.Time, time2 time.Time) bool {
+	return time1.Equal(time2) || time1.After(time2)
+}
+
+func beforeOrEqual(time1 time.Time, time2 time.Time) bool {
+	return time1.Equal(time2) || time1.Before(time2)
 }

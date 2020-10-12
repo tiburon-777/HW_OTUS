@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	Server Server
-	Grpc Server
-	Logger Logger
+	Server  Server
+	Grpc    Server
+	Logger  Logger
 	Storage Storage
 }
 

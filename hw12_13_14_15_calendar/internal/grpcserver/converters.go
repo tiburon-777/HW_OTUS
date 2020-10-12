@@ -7,7 +7,7 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage/event"
 )
 
-func (s Service) buildStorageEvent (pbe *CreateReq) (res event.Event, err error) {
+func (s Service) buildStorageEvent(pbe *CreateReq) (res event.Event, err error) {
 	res = event.Event{Title: pbe.Title, Note: pbe.Note, UserID: pbe.UserID}
 	res.Date, err = ptypes.Timestamp(pbe.Date)
 	if err != nil {
@@ -41,7 +41,6 @@ func (s Service) buildStorageEventAndID(pbe *UpdateReq) (id event.ID, evt event.
 	return event.ID(pbe.ID), evt, nil
 }
 
-
 func (s Service) buildEventList(evtMap map[event.ID]event.Event) ([]*Event, error) {
 	var events = []*Event{}
 	var err error
@@ -58,5 +57,5 @@ func (s Service) buildEventList(evtMap map[event.ID]event.Event) ([]*Event, erro
 
 func (s Service) buildTimeAndRange(e *GetByDateReq) (start time.Time, qrange string, err error) {
 	date, err := ptypes.Timestamp(e.Date)
-	return date, string(e.Range), err
+	return date, e.Range.String(), err
 }
