@@ -7,8 +7,22 @@ option go_package = "grpcserver";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
-import "google/api/annotations.proto";
 
+
+service grpc {
+  rpc Create(CreateReq) returns (CreateRsp) {}
+  rpc Update(UpdateReq) returns (google.protobuf.Empty) {}
+  rpc Delete(DeleteReq) returns (google.protobuf.Empty) {}
+  rpc List(google.protobuf.Empty) returns (ListResp) {}
+  rpc GetByID(GetByIDReq) returns (GetByIDResp) {}
+  rpc GetByDate(GetByDateReq) returns (GetByDateResp) {}
+}
+
+enum QueryRange {
+  DAY = 0;
+  WEEK = 1;
+  MONTH = 2;
+}
 message Event {
   int64 ID  = 1;
   string Title = 2;
@@ -19,61 +33,37 @@ message Event {
   google.protobuf.Duration NotifyTime = 7;
 }
 
-message EventList {
-  repeated Event Events = 1;
+message CreateReq {
+  string Title = 2;
+  google.protobuf.Timestamp Date = 3;
+  google.protobuf.Duration Latency = 4;
+  string Note = 5;
+  int64 UserID = 6;
+  google.protobuf.Duration NotifyTime = 7;
 }
-
-message EventID {
+message CreateRsp {
   int64 ID  = 1;
 }
-
-message EventWthID {
+message UpdateReq {
   int64 ID  = 1;
   Event Event = 2;
 }
-
-enum QueryRange {
-  DAY = 0;
-  WEEK = 1;
-  MONTH = 2;
+message DeleteReq {
+  int64 ID  = 1;
 }
-
-message Date {
+message ListResp {
+  repeated Event Events = 1;
+}
+message GetByIDReq {
+  int64 ID  = 1;
+}
+message GetByIDResp {
+  repeated Event Events = 1;
+}
+message GetByDateReq {
   google.protobuf.Timestamp Date = 1;
   QueryRange Range = 2;
 }
-
-service grpc {
-  rpc Create(Event) returns (EventID) {
-    option (google.api.http) = {
-      post: "",
-      body: "*",
-    };
-  }
-  rpc Update(EventWthID) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      put: "/{ID}",
-      body: "*",
-    };
-  }
-  rpc Delete(EventID) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/{ID}"
-    };
-  }
-  rpc List(google.protobuf.Empty) returns (EventList) {
-    option (google.api.http) = {
-      get: "/event"
-    };
-  }
-  rpc GetByID(EventID) returns (EventList) {
-    option (google.api.http) = {
-      get: "/{ID}"
-    };
-  }
-  rpc GetByDate(Date) returns (EventList) {
-    option (google.api.http) = {
-      get: "/{Date}/{Range}"
-    };
-  }
+message GetByDateResp {
+  repeated Event Events = 1;
 }
