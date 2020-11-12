@@ -42,15 +42,17 @@ func (s Service) buildStorageEventAndID(pbe *UpdateReq) (id event.ID, evt event.
 }
 
 func (s Service) buildEventList(evtMap map[event.ID]event.Event) ([]*Event, error) {
-	var events = []*Event{}
+	events := make([]*Event, len(evtMap))
 	var err error
+	var i int
 	for k, v := range evtMap {
 		evt := Event{ID: int64(k), Title: v.Title, Latency: ptypes.DurationProto(v.Latency), Note: v.Note, UserID: v.UserID, NotifyTime: ptypes.DurationProto(v.NotifyTime)}
 		evt.Date, err = ptypes.TimestampProto(v.Date)
 		if err != nil {
 			return nil, err
 		}
-		events = append(events, &evt)
+		events[i] = &evt
+		i++
 	}
 	return events, err
 }
