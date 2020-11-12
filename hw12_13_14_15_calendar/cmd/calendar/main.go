@@ -1,10 +1,17 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/dmitryt/otus-golang-hw/hw12_13_14_15_calendar/service/server"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
 	oslog "log"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
@@ -59,8 +66,32 @@ func main() {
 		}
 	}()
 
+	grpcDiler, err := grpc.Dial(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), grpc.WithInsecure())
+	if err != nil {
+		log.Errorf("can't dial grpc server: " + err.Error())
+		os.Exit(1)
+	}
+	defer grpcDiler.Close()
+
+	grpcGwRouter := runtime.NewServeMux()
+
+	if err = server.RegisterCalendarHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
+		log.Errorf("can't register handlers for grpc-gateway: " + err.Error())
+		os.Exit(1)
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", grpcGwRouter)
+	go func() {
+		log.Infof("start webAPI server")
+		if err := http.ListenAndServe(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), mux); err != nil {
+			log.Errorf("failed to start webAPI server: " + err.Error())
+			os.Exit(1)
+		}
+	}()
+
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals)
+	signal.Notify(signals,syscall.SIGINT, syscall.SIGHUP)
 	<-signals
 	signal.Stop(signals)
 	serverGRPC.Stop()

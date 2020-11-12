@@ -6,6 +6,10 @@ Port = "8080"
 Address = "localhost"
 Port = "50051"
 
+[Http]
+Address = "localhost"
+Port = "50051"
+
 [Logger]
 File = "./calendar.log"
 Level = "INFO"

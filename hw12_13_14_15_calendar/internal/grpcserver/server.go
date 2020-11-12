@@ -19,7 +19,7 @@ func New(app *app.App) Server {
 
 func (s *Server) Start(conf config.Config) error {
 	s.app.Logger.Infof("GRPC server starting")
-	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.Grpc.Address, conf.Grpc.Port))
+	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.GRPC.Address, conf.GRPC.Port))
 	RegisterGrpcServer(s.s, &Service{})
 	if err != nil {
 		return err

@@ -9,7 +9,8 @@ import (
 
 type Config struct {
 	Server  Server
-	Grpc    Server
+	GRPC    Server
+	HTTP    Server
 	Logger  Logger
 	Storage Storage
 }

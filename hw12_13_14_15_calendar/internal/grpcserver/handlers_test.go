@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-var conf = config.Config{Server: config.Server{Address: "localhost", Port: "50511"}, Grpc: config.Server{Address: "localhost", Port: "50512"}, Logger: config.Logger{File: "calendar.log", Level: "INFO", MuteStdout: false}, Storage: config.Storage{InMemory: true, SQLHost: "", SQLPort: "", SQLDbase: "", SQLUser: "", SQLPass: ""}}
+var conf = config.Config{Server: config.Server{Address: "localhost", Port: "50511"}, GRPC: config.Server{Address: "localhost", Port: "50512"}, Logger: config.Logger{File: "calendar.log", Level: "INFO", MuteStdout: false}, Storage: config.Storage{InMemory: true, SQLHost: "", SQLPort: "", SQLDbase: "", SQLUser: "", SQLPass: ""}}
 
 var storeConf = store.Config(conf.Storage)
 
