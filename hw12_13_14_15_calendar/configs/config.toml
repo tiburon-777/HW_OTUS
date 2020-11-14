@@ -1,6 +1,10 @@
-[Server]
+[Grpc]
 Address = "localhost"
-Port = "8080"
+Port = "50051"
+
+[HTTP]
+Address = "localhost"
+Port = "50052"
 
 [Logger]
 File = "./calendar.log"
