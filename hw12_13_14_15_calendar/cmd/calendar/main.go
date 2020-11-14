@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/dmitryt/otus-golang-hw/hw12_13_14_15_calendar/service/server"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	oslog "log"
@@ -18,7 +17,6 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpcserver"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/server/http"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -50,14 +48,6 @@ func main() {
 
 	calendar := app.New(log, st)
 
-	serverHTTP := internalhttp.NewServer(calendar, conf.Server.Address, conf.Server.Port)
-	go func() {
-		if err := serverHTTP.Start(); err != nil {
-			log.Errorf("failed to start http server: " + err.Error())
-			os.Exit(1)
-		}
-	}()
-
 	serverGRPC := grpcserver.New(calendar)
 	go func() {
 		if err := serverGRPC.Start(conf); err != nil {
@@ -75,7 +65,7 @@ func main() {
 
 	grpcGwRouter := runtime.NewServeMux()
 
-	if err = server.RegisterCalendarHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
+	if err = grpcserver.RegisterGrpcHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
 		log.Errorf("can't register handlers for grpc-gateway: " + err.Error())
 		os.Exit(1)
 	}
@@ -91,11 +81,8 @@ func main() {
 	}()
 
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals,syscall.SIGINT, syscall.SIGHUP)
+	signal.Notify(signals,syscall.SIGINT)
 	<-signals
 	signal.Stop(signals)
 	serverGRPC.Stop()
-	if err := serverHTTP.Stop(); err != nil {
-		log.Errorf("failed to stop http server: " + err.Error())
-	}
 }

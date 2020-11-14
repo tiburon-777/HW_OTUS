@@ -8,7 +8,6 @@ import (
 )
 
 type Config struct {
-	Server  Server
 	GRPC    Server
 	HTTP    Server
 	Logger  Logger

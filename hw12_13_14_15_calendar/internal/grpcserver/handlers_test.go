@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-var conf = config.Config{Server: config.Server{Address: "localhost", Port: "50511"}, GRPC: config.Server{Address: "localhost", Port: "50512"}, Logger: config.Logger{File: "calendar.log", Level: "INFO", MuteStdout: false}, Storage: config.Storage{InMemory: true, SQLHost: "", SQLPort: "", SQLDbase: "", SQLUser: "", SQLPass: ""}}
+var conf = config.Config{HTTP: config.Server{Address: "localhost", Port: "50511"}, GRPC: config.Server{Address: "localhost", Port: "50512"}, Logger: config.Logger{File: "calendar.log", Level: "INFO", MuteStdout: false}, Storage: config.Storage{InMemory: true, SQLHost: "", SQLPort: "", SQLDbase: "", SQLUser: "", SQLPass: ""}}
 
 var storeConf = store.Config(conf.Storage)
 
@@ -41,13 +41,16 @@ func (suite *TestSuite) SetupTest() {
 func (s *TestSuite) TestCreateEvent() {
 	controlEvent := testEvt1
 	s.createEvent(&controlEvent)
+
 	createdEvent := s.getEventByDate(controlEvent.Date)
+	s.Require().GreaterOrEqual(len(createdEvent), 1)
 	s.Equal(&controlEvent, createdEvent[0])
 }
 
 func (s *TestSuite) TestUpdateEvent() {
 	oldEvent := testEvt1
 	s.createEvent(&oldEvent)
+
 	newEvent := testEvt2
 	s.updateEvent(oldEvent, newEvent)
 	updatedEvent := s.getEventByID(oldEvent.ID)
@@ -58,7 +61,9 @@ func (s *TestSuite) TestDeleteEvent() {
 	testEvent := testEvt1
 	s.createEvent(&testEvent)
 	createdEvent := s.getEventByDate(testEvent.Date)
+	s.Require().GreaterOrEqual(len(createdEvent), 1)
 	s.Equal(&testEvent, createdEvent[0])
+
 	s.deleteEvent(createdEvent[0].ID)
 	controlEvent := s.getEventByDate(testEvent.Date)
 	s.Equal(0, len(controlEvent))
@@ -67,14 +72,16 @@ func (s *TestSuite) TestDeleteEvent() {
 func (s *TestSuite) TestListEvent() {
 	testEvent := testEvt1
 	s.createEvent(&testEvent)
+
 	eventList := s.listEvents()
-	s.Equal(1, len(eventList))
+	s.GreaterOrEqual(len(eventList),1)
 	s.Equal(testEvt1.Title, eventList[0].Title)
 }
 
 func (s *TestSuite) TestGetEventByID() {
 	testEvent := testEvt1
 	s.createEvent(&testEvent)
+
 	eventList := s.getEventByID(testEvent.ID)
 	s.Equal(testEvent.Title, eventList.Title)
 }
@@ -82,8 +89,9 @@ func (s *TestSuite) TestGetEventByID() {
 func (s *TestSuite) TestGetEventByDate() {
 	testEvent := testEvt1
 	s.createEvent(&testEvent)
+
 	eventList := s.getEventByDate(testEvent.Date)
-	s.Equal(1, len(eventList))
+	s.GreaterOrEqual(len(eventList),1)
 	s.Equal(testEvent.Title, eventList[0].Title)
 }
 

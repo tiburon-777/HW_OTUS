@@ -7,15 +7,42 @@ option go_package = "grpcserver";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
 
 service grpc {
-  rpc Create(CreateReq) returns (CreateRsp) {}
-  rpc Update(UpdateReq) returns (google.protobuf.Empty) {}
-  rpc Delete(DeleteReq) returns (google.protobuf.Empty) {}
-  rpc List(google.protobuf.Empty) returns (ListResp) {}
-  rpc GetByID(GetByIDReq) returns (GetByIDResp) {}
-  rpc GetByDate(GetByDateReq) returns (GetByDateResp) {}
+  rpc Create(CreateReq) returns (CreateRsp) {
+    option (google.api.http) = {
+      post: "/events",
+      body: "*",
+    };
+  }
+  rpc Update(UpdateReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/events/{ID}",
+      body: "*",
+    };
+  }
+  rpc Delete(DeleteReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/events/{ID}"
+    };
+  }
+  rpc List(google.protobuf.Empty) returns (ListResp) {
+    option (google.api.http) = {
+      get: "/events"
+    };
+  }
+  rpc GetByID(GetByIDReq) returns (GetByIDResp) {
+    option (google.api.http) = {
+      get: "/events/{ID}"
+    };
+  }
+  rpc GetByDate(GetByDateReq) returns (GetByDateResp) {
+    option (google.api.http) = {
+      post: "/events/{Range}/{Date}"
+    };
+  }
 }
 
 enum QueryRange {
