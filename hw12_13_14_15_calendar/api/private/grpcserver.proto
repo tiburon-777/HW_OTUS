@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package private;
+
+option go_package = "private";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
+service grpc {
+  rpc GetNotifications(google.protobuf.Empty) returns (GetRsp) {}
+  rpc SetNotified(SetReq) returns (google.protobuf.Empty) {}
+}
+
+message GetRsp {
+  repeated Event Events = 1;
+}
+
+message SetReq {
+  int64 ID  = 1;
+}
+
+message Event {
+  int64 ID  = 1;
+  string Title = 2;
+  google.protobuf.Timestamp Date = 3;
+  int64 UserID = 4;
+}

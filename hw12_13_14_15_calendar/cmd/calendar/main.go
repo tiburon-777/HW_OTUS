@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/api/private"
 	"google.golang.org/grpc"
 	oslog "log"
 	"net"
@@ -13,26 +14,27 @@ import (
 	"syscall"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpcserver"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
-	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
+	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "/etc/calendar.conf", "Path to configuration file")
 	flag.Parse()
 }
 
 func main() {
-	conf, err := config.NewConfig(configFile)
+	var conf config.Calendar
+	err := config.New(configFile, &conf)
 	if err != nil {
 		oslog.Fatal("не удалось открыть файл конфигурации:", err.Error())
 	}
-	log, err := logger.New(conf)
+	log, err := logger.New(logger.Config(conf.Logger))
 	if err != nil {
 		oslog.Fatal("не удалось запустить логер:", err.Error())
 	}
@@ -46,12 +48,20 @@ func main() {
 	}
 	st := store.NewStore(storeConf)
 
-	calendar := app.New(log, st)
+	calendar := calendar.New(log, st)
 
-	serverGRPC := grpcserver.New(calendar)
+	serverGRPC := public.New(calendar)
 	go func() {
 		if err := serverGRPC.Start(conf); err != nil {
 			log.Errorf("failed to start grpc server: " + err.Error())
+			os.Exit(1)
+		}
+	}()
+
+	serverAPI := private.New(calendar)
+	go func() {
+		if err := serverAPI.Start(private.Config(conf.API)); err != nil {
+			log.Errorf("failed to start API server: " + err.Error())
 			os.Exit(1)
 		}
 	}()
@@ -65,7 +75,7 @@ func main() {
 
 	grpcGwRouter := runtime.NewServeMux()
 
-	if err = grpcserver.RegisterGrpcHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
+	if err = public.RegisterGrpcHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
 		log.Errorf("can't register handlers for grpc-gateway: " + err.Error())
 		os.Exit(1)
 	}
@@ -81,7 +91,7 @@ func main() {
 	}()
 
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals,syscall.SIGINT)
+	signal.Notify(signals, syscall.SIGINT)
 	<-signals
 	signal.Stop(signals)
 	serverGRPC.Stop()
