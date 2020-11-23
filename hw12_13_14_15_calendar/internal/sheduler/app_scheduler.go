@@ -36,7 +36,7 @@ func New(conf Config) Scheduler {
 }
 
 func (s *Scheduler) Start(ctx context.Context) error {
-	fetcher := riseOnTick(ctx, s.Logger, func() interface{} { return worker(ctx, s.CalendarAPI, s.Rabbit) }, 1*time.Minute)
+	fetcher := riseOnTick(ctx, s.Logger, func() interface{} { return worker(ctx, s.CalendarAPI, s.Rabbit, s.Logger) }, 1*time.Minute)
 	go func() {
 		for {
 			select {

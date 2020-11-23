@@ -37,7 +37,7 @@ func riseOnTick(ctx context.Context, log logger.Interface, fn func() interface{}
 	return valueStream
 }
 
-func worker(ctx context.Context, calendarAPI config.Server, rb *rabbit.Rabbit) error {
+func worker(ctx context.Context, calendarAPI config.Server, rb *rabbit.Rabbit, log logger.Interface) error {
 	cli, err := private.NewClient(calendarAPI.Address, calendarAPI.Port)
 	if err != nil {
 		return err
@@ -56,5 +56,10 @@ func worker(ctx context.Context, calendarAPI config.Server, rb *rabbit.Rabbit) e
 			return err
 		}
 	}
+	resp2, err := cli.PurgeOldEvents(ctx, &private.PurgeReq{OlderThenDays: 365})
+	if err != nil {
+		return err
+	}
+	log.Infof("Scheduler successfully purges %s events from storage", resp2.Qty)
 	return nil
 }
