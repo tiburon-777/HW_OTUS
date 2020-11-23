@@ -29,3 +29,8 @@ func (s Service) GetNotifications(ctx context.Context, e *empty.Empty) (*GetRsp,
 func (s Service) SetNotified(ctx context.Context, r *SetReq) (*empty.Empty, error) {
 	return nil, s.App.Storage.SetNotified(event.ID(r.ID))
 }
+
+func (s Service) PurgeOldEvents(ctx context.Context, r *PurgeReq) (*PurgeResp, error) {
+	q, err := s.App.Storage.PurgeOldEvents(r.OlderThenDays)
+	return &PurgeResp{Qty: q}, err
+}

@@ -26,6 +26,7 @@ type StorageInterface interface {
 	GetByDate(time.Time, string) (map[event.ID]event.Event, error)
 	GetNotifications() (map[event.ID]event.Event, error)
 	SetNotified(event.ID) error
+	PurgeOldEvents(int64) (int64, error)
 }
 
 func NewStore(conf Config) StorageInterface {

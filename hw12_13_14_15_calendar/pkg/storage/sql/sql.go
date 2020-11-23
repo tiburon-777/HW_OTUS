@@ -201,6 +201,17 @@ func (s *Storage) SetNotified(id event.ID) error {
 	return err
 }
 
+func (s *Storage) PurgeOldEvents(days int64) (int64, error) {
+	r, err := s.db.Exec(
+		`DELETE from events where date<$1`,
+		time.Now().Add(-time.Duration(days*24*60*60)),
+	)
+	if err != nil {
+		return 0, err
+	}
+	return r.RowsAffected()
+}
+
 func getEndDate(startDate time.Time, rng string) time.Time {
 	switch rng {
 	case "DAY":

@@ -11,6 +11,7 @@ import "google/protobuf/empty.proto";
 service grpc {
   rpc GetNotifications(google.protobuf.Empty) returns (GetRsp) {}
   rpc SetNotified(SetReq) returns (google.protobuf.Empty) {}
+  rpc PurgeOldEvents(PurgeReq) returns (PurgeResp) {}
 }
 
 message GetRsp {
@@ -19,6 +20,13 @@ message GetRsp {
 
 message SetReq {
   int64 ID  = 1;
+}
+message PurgeReq {
+  int64 OlderThenDays = 1;
+}
+
+message PurgeResp {
+  int64 Qty = 1;
 }
 
 message Event {
