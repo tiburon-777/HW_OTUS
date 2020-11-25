@@ -48,6 +48,7 @@ func New(conf Config) (Interface, error) {
 		log.Fatalf("Could not instantiate log %s", err.Error())
 	}
 	l := amitralog.WithFields(amitralog.Fields{"hw": "12"})
+	l.Infof("logger start successful")
 	return l, nil
 }
 

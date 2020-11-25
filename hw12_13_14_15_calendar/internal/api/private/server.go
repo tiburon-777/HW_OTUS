@@ -22,7 +22,7 @@ func New(app *calendar.App) Server {
 }
 
 func (s *Server) Start(conf Config) error {
-	s.app.Logger.Infof("GRPC server starting")
+	s.app.Logger.Infof("private GRPC server starting")
 	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.Address, conf.Port))
 	RegisterGrpcServer(s.s, &Service{})
 	if err != nil {

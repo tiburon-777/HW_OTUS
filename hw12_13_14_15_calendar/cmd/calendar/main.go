@@ -24,7 +24,7 @@ import (
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar.conf", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "", "Path to configuration file")
 	flag.Parse()
 }
 
@@ -34,19 +34,14 @@ func main() {
 	if err != nil {
 		oslog.Fatal("не удалось открыть файл конфигурации:", err.Error())
 	}
+	oslog.Printf("Переменная APP_GRPC_PORT: %#v", os.Getenv("APP_GRPC_PORT"))
+	oslog.Printf("Конфиг приложения: %#v", conf)
 	log, err := logger.New(logger.Config(conf.Logger))
 	if err != nil {
 		oslog.Fatal("не удалось запустить логер:", err.Error())
 	}
-	storeConf := store.Config{
-		InMemory: conf.Storage.InMemory,
-		SQLHost:  conf.Storage.SQLHost,
-		SQLPort:  conf.Storage.SQLPort,
-		SQLDbase: conf.Storage.SQLDbase,
-		SQLUser:  conf.Storage.SQLUser,
-		SQLPass:  conf.Storage.SQLPass,
-	}
-	st := store.NewStore(storeConf)
+
+	st := store.NewStore(store.Config(conf.Storage))
 
 	calendar := calendar.New(log, st)
 
@@ -83,7 +78,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", grpcGwRouter)
 	go func() {
-		log.Infof("start webAPI server")
+		log.Infof("webAPI server starting")
 		if err := http.ListenAndServe(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), mux); err != nil {
 			log.Errorf("failed to start webAPI server: " + err.Error())
 			os.Exit(1)

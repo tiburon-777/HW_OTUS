@@ -19,12 +19,16 @@ install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.30.0
 
 generate:
-	protoc  -I ./api/public  --go_out=plugins=grpc:./pkg/api/public --grpc-gateway_out=logtostderr=true:./pkg/api/public ./api/public/grpcserver.proto
-	protoc  -I ./api/private  --go_out=plugins=grpc:./internal/api/private ./api/private/grpcserver.proto
+	protoc  -I ./api/public  --go_out=plugins=grpc:./pkg/api/public --grpc-gateway_out=logtostderr=true:./pkg/api/public ./api/public/public.proto
+	protoc  -I ./api/private  --go_out=plugins=grpc:./internal/api/private ./api/private/private.proto
 
-rabbit-start:
-	sudo -S docker-compose -f ./cicd/docker-compose.yml up --build -d
-rabbit-stop:
+compose-build:
+	sudo -S docker-compose -f ./cicd/docker-compose.yml build
+
+compose-up:
+	sudo -S docker-compose -f ./cicd/docker-compose.yml up -d
+
+compose-down:
 	sudo -S docker-compose -f ./cicd/docker-compose.yml down
 
 calendar-start:

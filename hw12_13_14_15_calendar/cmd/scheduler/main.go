@@ -16,7 +16,7 @@ import (
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/scheduler.conf", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "", "Path to configuration file")
 	flag.Parse()
 }
 
