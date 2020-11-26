@@ -2,16 +2,38 @@ package public
 
 import (
 	"context"
+	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
+	googrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Service struct {
+	S   *googrpc.Server
 	App calendar.App
+}
+
+func New(app *calendar.App) Service {
+	return Service{S: googrpc.NewServer(), App: *app}
+}
+
+func (s *Service) Start(conf config.Calendar) error {
+	s.App.Logger.Infof("public GRPC server starting")
+	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.GRPC.Address, conf.GRPC.Port))
+	if err != nil {
+		return err
+	}
+	RegisterGrpcServer(s.S, s)
+	return s.S.Serve(listnGrpc)
+}
+
+func (s *Service) Stop() {
+	s.S.GracefulStop()
 }
 
 func (s Service) Create(ctx context.Context, e *CreateReq) (*CreateRsp, error) {

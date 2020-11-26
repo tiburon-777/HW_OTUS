@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/sender"
 	"log"
@@ -16,7 +15,7 @@ import (
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/sender.conf", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "", "Path to configuration file")
 	flag.Parse()
 }
 
@@ -24,12 +23,11 @@ func main() {
 	var conf sender.Config
 	err := config.New(configFile, &conf)
 	if err != nil {
-		log.Fatal("не удалось открыть файл конфигурации:", err.Error())
+		log.Fatal("can't get config:", err.Error())
 	}
 	app := sender.New(conf)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	if err = app.Start(ctx); err != nil {
+	if err = app.Start(); err != nil {
 		app.Logger.Errorf("failed to start sender: ", err.Error())
 		os.Exit(1)
 	}
@@ -38,5 +36,6 @@ func main() {
 	signal.Notify(signals, syscall.SIGINT)
 	<-signals
 	signal.Stop(signals)
-	app.Stop(cancel)
+	app.Stop()
+	log.Println("sender shutdown gracefully")
 }

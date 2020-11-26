@@ -15,6 +15,7 @@ type Sender struct {
 	Logger logger.Interface
 	Rabbit *rabbit.Rabbit
 	Queue  string
+	Stop   context.CancelFunc
 }
 
 type Config struct {
@@ -34,7 +35,9 @@ func New(conf Config) Sender {
 	return Sender{Logger: log, Rabbit: rb, Queue: conf.Rabbitmq.Queue}
 }
 
-func (s *Sender) Start(ctx context.Context) error {
+func (s *Sender) Start() error {
+	ctx, cancel := context.WithCancel(context.Background())
+	s.Stop = cancel
 	msg, err := s.Rabbit.Consume(ctx, s.Queue)
 	if err != nil {
 		return err
@@ -58,8 +61,4 @@ func (s *Sender) Start(ctx context.Context) error {
 		}
 	}()
 	return nil
-}
-
-func (s *Sender) Stop(cancel context.CancelFunc) {
-	cancel()
 }

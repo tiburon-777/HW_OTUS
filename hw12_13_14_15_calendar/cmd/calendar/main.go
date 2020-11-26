@@ -32,7 +32,7 @@ func main() {
 	var conf config.Calendar
 	err := config.New(configFile, &conf)
 	if err != nil {
-		oslog.Fatal("не удалось открыть файл конфигурации:", err.Error())
+		oslog.Fatal("can't get config:", err.Error())
 	}
 	oslog.Printf("Переменная APP_GRPC_PORT: %#v", os.Getenv("APP_GRPC_PORT"))
 	oslog.Printf("Конфиг приложения: %#v", conf)
@@ -69,8 +69,8 @@ func main() {
 	defer grpcDiler.Close()
 
 	grpcGwRouter := runtime.NewServeMux()
-
-	if err = public.RegisterGrpcHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
+	ctx, cancel := context.WithCancel(context.Background())
+	if err = public.RegisterGrpcHandler(ctx, grpcGwRouter, grpcDiler); err != nil {
 		log.Errorf("can't register handlers for grpc-gateway: " + err.Error())
 		os.Exit(1)
 	}
@@ -90,4 +90,6 @@ func main() {
 	<-signals
 	signal.Stop(signals)
 	serverGRPC.Stop()
+	serverAPI.Stop()
+	cancel()
 }

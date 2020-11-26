@@ -2,16 +2,42 @@ package private
 
 import (
 	"context"
+	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
+	googrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Service struct {
+	S   *googrpc.Server
 	App calendar.App
+}
+
+type Config struct {
+	Address string
+	Port    string
+}
+
+func New(app *calendar.App) Service {
+	return Service{S: googrpc.NewServer(), App: *app}
+}
+
+func (s *Service) Start(conf Config) error {
+	s.App.Logger.Infof("private GRPC server starting")
+	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.Address, conf.Port))
+	RegisterGrpcServer(s.S, s)
+	if err != nil {
+		return err
+	}
+	return s.S.Serve(listnGrpc)
+}
+
+func (s *Service) Stop() {
+	s.S.GracefulStop()
 }
 
 func (s Service) GetNotifications(ctx context.Context, e *empty.Empty) (*GetRsp, error) {

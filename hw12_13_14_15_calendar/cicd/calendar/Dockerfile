@@ -3,7 +3,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 RUN go get -d ./cmd/calendar/.
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o calendar ./cmd/calendar/.
+RUN GOOS=linux GOARCH=amd64 go build -a -o calendar ./cmd/calendar/.
 
 FROM alpine:latest
 ENV APP_GRPC_ADDRESS=0.0.0.0

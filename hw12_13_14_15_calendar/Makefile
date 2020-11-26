@@ -9,8 +9,11 @@ start: build-all rabbit-start calendar-start scheduler-start sender-start
 
 stop: scheduler-stop sender-stop calendar-stop rabbit-stop
 
+integration:
+	go test -v -race ./cmd/calendar/...
+
 test:
-	go test -race ./internal/... ./pkg/... --tags calendar
+	go test -race ./internal/... ./pkg/...
 
 lint: install-lint-deps
 	golangci-lint run .cmd/... ./internal/...  ./pkg/...
@@ -45,7 +48,6 @@ sender-start:
 	nohup  ./bin/sender -config ./configs/sender.conf > /dev/null 2>&1 &
 sender-stop:
 	kill -9 `pgrep sender`
-
 
 
 

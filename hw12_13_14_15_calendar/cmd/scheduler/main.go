@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/sheduler"
 	"log"
@@ -24,12 +23,11 @@ func main() {
 	var conf sheduler.Config
 	err := config.New(configFile, &conf)
 	if err != nil {
-		log.Fatal("не удалось открыть файл конфигурации:", err.Error())
+		log.Fatal("can't get config:", err.Error())
 	}
 	app := sheduler.New(conf)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	if err = app.Start(ctx); err != nil {
+	if err = app.Start(); err != nil {
 		app.Logger.Errorf("failed to start scheduler: ", err.Error())
 		os.Exit(1)
 	}
@@ -38,5 +36,6 @@ func main() {
 	signal.Notify(signals, syscall.SIGINT)
 	<-signals
 	signal.Stop(signals)
-	app.Stop(cancel)
+	app.Stop()
+	log.Println("scheduler shutdown gracefully")
 }

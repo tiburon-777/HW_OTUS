@@ -14,6 +14,7 @@ type Scheduler struct {
 	CalendarAPI config.Server
 	Logger      logger.Interface
 	Rabbit      *rabbit.Rabbit
+	Stop        context.CancelFunc
 }
 
 type Config struct {
@@ -35,7 +36,9 @@ func New(conf Config) Scheduler {
 	return Scheduler{CalendarAPI: conf.CalendarAPI, Logger: log, Rabbit: rb}
 }
 
-func (s *Scheduler) Start(ctx context.Context) error {
+func (s *Scheduler) Start() error {
+	ctx, cancel := context.WithCancel(context.Background())
+	s.Stop = cancel
 	fetcher := riseOnTick(ctx, s.Logger, func() interface{} { return worker(ctx, s.CalendarAPI, s.Rabbit, s.Logger) }, 1*time.Minute)
 	go func() {
 		for {
@@ -51,8 +54,4 @@ func (s *Scheduler) Start(ctx context.Context) error {
 		}
 	}()
 	return nil
-}
-
-func (s *Scheduler) Stop(cancel context.CancelFunc) {
-	cancel()
 }

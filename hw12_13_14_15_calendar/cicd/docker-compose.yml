@@ -1,4 +1,4 @@
-version: '2.0'
+version: '3'
 services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -12,28 +12,28 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    expose:
-      - 5672
-      - 15672
-  calendar:
-    build:
-      context: ..
-      dockerfile: ./cicd/calendar/Dockerfile
-    ports:
-      - 50051:50051
-      - 50053:50053
-      - 8888:8888
-    volumes:
-      - ../calendar.log:/calendar.log
-  scheduler:
-    build:
-      context: ..
-      dockerfile: ./cicd/scheduler/Dockerfile
-    volumes:
-      - ../calendar.log:/calendar.log
-  sender:
-    build:
-      context: ..
-      dockerfile: ./cicd/sender/Dockerfile
-    volumes:
-      - ../calendar.log:/calendar.log
+  #calendar:
+  #  build:
+  #    context: ..
+  #    dockerfile: ./cicd/calendar/Dockerfile
+  #  ports:
+  #    - "8888:8888"
+  #  volumes:
+  #    - ../calendar.log:/calendar.log
+  #scheduler:
+  #  build:
+  #    context: ..
+  #    dockerfile: ./cicd/scheduler/Dockerfile
+  #  volumes:
+  #    - ../calendar.log:/calendar.log
+  #  depends_on:
+  #    - rabbitmq
+  #    - calendar
+  #sender:
+  #  build:
+  #    context: ..
+  #    dockerfile: ./cicd/sender/Dockerfile
+  #  volumes:
+  #    - ../calendar.log:/calendar.log
+  #  depends_on:
+  #    - rabbitmq

@@ -9,12 +9,16 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/grpc-gateway v1.15.0
 	github.com/kr/text v0.2.0 // indirect
+	github.com/lib/pq v1.8.0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.5 // indirect
 	github.com/mxschmitt/golang-env-struct v0.0.0-20181017075525-0c54aeca8397
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/pressly/goose v2.6.0+incompatible // indirect
 	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.6.1
+	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.uber.org/zap v1.15.0 // indirect
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/sys v0.0.0-20200909081042-eff7692f9009 // indirect
