@@ -2,6 +2,7 @@ package rabbit
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/streadway/amqp"
 )
@@ -9,7 +10,7 @@ import (
 func (r *Rabbit) Publish(body string) error {
 	b, err := json.Marshal([]byte(body))
 	if err != nil {
-		return err
+		return fmt.Errorf("can't marshal message body into JSON: %w", err)
 	}
 	err = r.Channel.Publish(
 		r.Exchange, // exchange
@@ -21,7 +22,7 @@ func (r *Rabbit) Publish(body string) error {
 			Body:        b,
 		})
 	if err != nil {
-		return err
+		return fmt.Errorf("can't publish message into RabbitMQ exchange: %w", err)
 	}
 	return nil
 }

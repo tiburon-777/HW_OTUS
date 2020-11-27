@@ -3,6 +3,7 @@ package sender
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	oslog "log"
 
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/api/private"
@@ -26,7 +27,7 @@ type Config struct {
 func New(conf Config) Sender {
 	log, err := logger.New(logger.Config(conf.Logger))
 	if err != nil {
-		oslog.Fatal("не удалось запустить логер:", err.Error())
+		oslog.Fatal("can't start logger:", err.Error())
 	}
 	rb, err := rabbit.Attach(rabbit.Config(conf.Rabbitmq))
 	if err != nil {
@@ -40,7 +41,7 @@ func (s *Sender) Start() error {
 	s.Stop = cancel
 	msg, err := s.Rabbit.Consume(ctx, s.Queue)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't consume RabbitMQ queue: %w", err)
 	}
 
 	go func() {
@@ -50,7 +51,7 @@ func (s *Sender) Start() error {
 				var data []private.Event
 				err := json.Unmarshal(m.Data, &data)
 				if err != nil {
-					s.Logger.Errorf("can`t unmarshal data", err)
+					s.Logger.Errorf("can`t unmarshal data %w", err)
 				}
 				for _, v := range data {
 					s.Logger.Infof("User %s notified about event %s", v.UserID, v.ID)

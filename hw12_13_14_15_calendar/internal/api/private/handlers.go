@@ -2,6 +2,7 @@ package private
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -43,10 +44,12 @@ func (s *Service) Stop() {
 func (s Service) GetNotifications(ctx context.Context, e *empty.Empty) (*GetRsp, error) {
 	tmp, err := s.App.Storage.GetNotifications()
 	if err != nil {
+		s.App.Logger.Errorf("storage error: can't get list of events: %w", err)
 		return nil, status.Errorf(codes.Internal, "storage error: can't get list of events")
 	}
 	l, err := s.buildEventList(tmp)
 	if err != nil {
+		s.App.Logger.Errorf("inconvertible: %w", err)
 		return nil, status.Errorf(codes.Internal, "inconvertible")
 	}
 	return &GetRsp{Events: l}, nil
@@ -58,5 +61,8 @@ func (s Service) SetNotified(ctx context.Context, r *SetReq) (*empty.Empty, erro
 
 func (s Service) PurgeOldEvents(ctx context.Context, r *PurgeReq) (*PurgeResp, error) {
 	q, err := s.App.Storage.PurgeOldEvents(r.OlderThenDays)
-	return &PurgeResp{Qty: q}, err
+	if err != nil {
+		return &PurgeResp{}, fmt.Errorf("can't purge old events from storage: %w", err)
+	}
+	return &PurgeResp{Qty: q}, nil
 }

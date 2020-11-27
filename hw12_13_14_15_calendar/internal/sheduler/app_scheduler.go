@@ -27,7 +27,7 @@ type Config struct {
 func New(conf Config) Scheduler {
 	log, err := logger.New(logger.Config(conf.Logger))
 	if err != nil {
-		oslog.Fatal("не удалось запустить логер:", err.Error())
+		oslog.Fatal("can't start logger:", err.Error())
 	}
 	rb, err := rabbit.New(rabbit.Config(conf.Rabbitmq))
 	if err != nil {

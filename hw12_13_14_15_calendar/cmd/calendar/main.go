@@ -34,11 +34,9 @@ func main() {
 	if err != nil {
 		oslog.Fatal("can't get config:", err.Error())
 	}
-	oslog.Printf("Переменная APP_GRPC_PORT: %#v", os.Getenv("APP_GRPC_PORT"))
-	oslog.Printf("Конфиг приложения: %#v", conf)
 	log, err := logger.New(logger.Config(conf.Logger))
 	if err != nil {
-		oslog.Fatal("не удалось запустить логер:", err.Error())
+		oslog.Fatal("can't start logger:", err.Error())
 	}
 
 	st := store.NewStore(store.Config(conf.Storage))

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -8,25 +9,28 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/pkg/errors"
 )
 
 func New(configFile string, str interface{}) error {
 	if configFile == "" {
-		return ApplyEnvVars(str, "APP")
+		err := ApplyEnvVars(str, "APP")
+		if err != nil {
+			return fmt.Errorf("can't apply envvars to config :%w", err)
+		}
+		return nil
 	}
 	f, err := os.Open(configFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't open config file: %w", err)
 	}
 	defer f.Close()
 	s, err := ioutil.ReadAll(f)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't read content of the config file : %w", err)
 	}
 	_, err = toml.Decode(string(s), str)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't parce config file : %w", err)
 	}
 	return nil
 }
@@ -39,7 +43,7 @@ func ApplyEnvVars(c interface{}, prefix string) error {
 
 func applyEnvVar(v reflect.Value, t reflect.Type, counter int, prefix string) error {
 	if v.Kind() != reflect.Ptr {
-		return errors.New("not a pointer value")
+		return fmt.Errorf("not a pointer value")
 	}
 	f := reflect.StructField{}
 	if counter != -1 {
@@ -53,7 +57,7 @@ func applyEnvVar(v reflect.Value, t reflect.Type, counter int, prefix string) er
 		case reflect.Int:
 			envI, err := strconv.Atoi(env)
 			if err != nil {
-				return errors.Wrap(err, "could not parse to int")
+				return fmt.Errorf("could not parse to int: %w", err)
 			}
 			v.SetInt(int64(envI))
 		case reflect.String:
@@ -61,7 +65,7 @@ func applyEnvVar(v reflect.Value, t reflect.Type, counter int, prefix string) er
 		case reflect.Bool:
 			envB, err := strconv.ParseBool(env)
 			if err != nil {
-				return errors.Wrap(err, "could not parse bool")
+				return fmt.Errorf("could not parse bool: %w", err)
 			}
 			v.SetBool(envB)
 		}
@@ -69,7 +73,7 @@ func applyEnvVar(v reflect.Value, t reflect.Type, counter int, prefix string) er
 	if v.Kind() == reflect.Struct {
 		for i := 0; i < v.NumField(); i++ {
 			if err := applyEnvVar(v.Field(i).Addr(), v.Type(), i, prefix+fName+"_"); err != nil {
-				return errors.Wrap(err, "could not apply env var")
+				return fmt.Errorf("could not apply env var: %w", err)
 			}
 		}
 	}

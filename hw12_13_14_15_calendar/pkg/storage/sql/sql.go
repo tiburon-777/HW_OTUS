@@ -2,6 +2,7 @@ package sql
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
@@ -29,7 +30,7 @@ func (s *Storage) Connect(config Config) error {
 	var err error
 	s.db, err = sql.Open("mysql", config.User+":"+config.Pass+"@tcp("+config.Host+":"+config.Port+")/"+config.Dbase)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't connect to SQL server: %w", err)
 	}
 	return nil
 }
@@ -51,9 +52,12 @@ func (s *Storage) Create(ev event.Event) (event.ID, error) {
 		ev.NotifyTime,
 	)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("can't create event in SQL DB: %w", err)
 	}
 	idint64, err := res.LastInsertId()
+	if err != nil {
+		return -1, fmt.Errorf("can't get LastInsertId from SQL DB: %w", err)
+	}
 	return event.ID(idint64), err
 }
 
@@ -70,7 +74,10 @@ func (s *Storage) Update(id event.ID, event event.Event) error {
 		event.NotifyTime,
 		id,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("can't update event in SQL DB: %w", err)
+	}
+	return nil
 }
 
 func (s *Storage) Delete(id event.ID) error {
@@ -78,14 +85,17 @@ func (s *Storage) Delete(id event.ID) error {
 		`DELETE from events where id=$1`,
 		id,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("can't delete event from SQL DB: %w", err)
+	}
+	return nil
 }
 
 func (s *Storage) List() (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
 	results, err := s.db.Query(`SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}
 	defer results.Close()
 	for results.Next() {
@@ -94,16 +104,16 @@ func (s *Storage) List() (map[event.ID]event.Event, error) {
 		var dateRaw string
 		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't parce list of events getted from SQL DB: %w", err)
 		}
 		evt.Date, err = time.Parse(dateTimeLayout, dateRaw)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't parce Date getted from SQL DB: %w", err)
 		}
 		res[id] = evt
 	}
 	if results.Err() != nil {
-		return nil, results.Err()
+		return nil, fmt.Errorf("something happens while we try to parce lines getted from SQL DB: %w", results.Err())
 	}
 	return res, nil
 }
@@ -136,7 +146,7 @@ func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event
 		startDate,
 		getEndDate(startDate, rng))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}
 	defer results.Close()
 	for results.Next() {
@@ -145,16 +155,16 @@ func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event
 		var dateRaw string
 		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't parce list of events getted from SQL DB: %w", err)
 		}
 		evt.Date, err = time.Parse(dateTimeLayout, dateRaw)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't parce Date getted from SQL DB: %w", err)
 		}
 		res[id] = evt
 	}
 	if results.Err() != nil {
-		return nil, results.Err()
+		return nil, fmt.Errorf("something happens while we try to parce lines getted from SQL DB: %w", results.Err())
 	}
 	return res, nil
 }
@@ -168,7 +178,7 @@ func (s *Storage) GetNotifications() (map[event.ID]event.Event, error) {
 				ORDER BY id`,
 		time.Now())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}
 	defer results.Close()
 	for results.Next() {
@@ -177,16 +187,16 @@ func (s *Storage) GetNotifications() (map[event.ID]event.Event, error) {
 		var dateRaw string
 		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't parce list of events getted from SQL DB: %w", err)
 		}
 		evt.Date, err = time.Parse(dateTimeLayout, dateRaw)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't parce Date getted from SQL DB: %w", err)
 		}
 		res[id] = evt
 	}
 	if results.Err() != nil {
-		return nil, results.Err()
+		return nil, fmt.Errorf("something happens while we try to parce lines getted from SQL DB: %w", results.Err())
 	}
 	return res, nil
 }
@@ -198,7 +208,10 @@ func (s *Storage) SetNotified(id event.ID) error {
 		where id=$1`,
 		id,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("can't set event as notified in SQL DB: %w", err)
+	}
+	return nil
 }
 
 func (s *Storage) PurgeOldEvents(days int64) (int64, error) {
@@ -207,9 +220,13 @@ func (s *Storage) PurgeOldEvents(days int64) (int64, error) {
 		time.Now().Add(-time.Duration(days*24*60*60)),
 	)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("can't delete old events from SQL DB: %w", err)
 	}
-	return r.RowsAffected()
+	l, err := r.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("can't run RowAffected on SQL DB query: %w", err)
+	}
+	return l, nil
 }
 
 func getEndDate(startDate time.Time, rng string) time.Time {

@@ -1,6 +1,7 @@
 package private
 
 import (
+	"fmt"
 	"net"
 
 	"google.golang.org/grpc"
@@ -9,7 +10,7 @@ import (
 func NewClient(addr, port string) (GrpcClient, error) {
 	conn, err := grpc.Dial(net.JoinHostPort(addr, port), grpc.WithInsecure())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't dial GRPC server: %w", err)
 	}
 	client := NewGrpcClient(conn)
 	return client, nil
