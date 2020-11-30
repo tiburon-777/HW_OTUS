@@ -56,21 +56,21 @@ func (s Service) Update(ctx context.Context, e *UpdateReq) (*empty.Empty, error)
 	cid, ce, err := s.buildStorageEventAndID(e)
 	if err != nil {
 		s.App.Logger.Errorf("inconvertible event: %w", err)
-		return nil, status.Errorf(codes.Internal, "inconvertible")
+		return &empty.Empty{}, status.Errorf(codes.Internal, "inconvertible")
 	}
 	if s.App.Storage.Update(cid, ce) != nil {
 		s.App.Logger.Errorf("can't update event in storage: %w", err)
-		return nil, status.Errorf(codes.Internal, "storage error: can't update event")
+		return &empty.Empty{}, status.Errorf(codes.Internal, "storage error: can't update event")
 	}
-	return nil, nil
+	return &empty.Empty{}, nil
 }
 
 func (s Service) Delete(ctx context.Context, e *DeleteReq) (*empty.Empty, error) {
 	if err := s.App.Storage.Delete(event.ID(e.ID)); err != nil {
 		s.App.Logger.Errorf("can't update event in storage: %w", err)
-		return nil, status.Errorf(codes.Internal, "storage error: can't update event")
+		return &empty.Empty{}, status.Errorf(codes.Internal, "storage error: can't update event")
 	}
-	return nil, nil
+	return &empty.Empty{}, nil
 }
 
 func (s Service) List(ctx context.Context, e *empty.Empty) (*ListResp, error) {

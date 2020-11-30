@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -12,15 +13,7 @@ import (
 	"sync"
 	"testing"
 	"time"
-	"os"
 )
-
-var _ = func() bool {
-	testing.Init()
-	return true
-}()
-
-const testPortBase = 3000
 
 var testEvent01 = public.CreateReq{
 	Title:      "Test event 01",
@@ -39,25 +32,26 @@ var testEvent02 = public.CreateReq{
 	NotifyTime: dur2pbduration(5 * time.Minute),
 	UserID:     2222,
 }
-func TestMain(m *testing.M) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	go func(ctx context.Context) {
-		main()
-	}(ctx)
-	time.Sleep(1*time.Second)
 
-	c := m.Run()
+func main() {
+	if err := TestPublicAPIEndpoint(); err != nil {
+		log.Fatalf("TestPublicAPIEndpoint FAIL: %w",err)
+	}
 
-	cancel()
-	os.Exit(c)
+	if err := TestPublicGRPCEndpoint(); err != nil {
+		log.Fatalf("TestPublicGRPCEndpoint FAIL: %w",err)
+	}
+
 }
 
-func TestPublicGRPCEndpoint(t *testing.T) {
+func TestPublicGRPCEndpoint() error {
 	wg := sync.WaitGroup{}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	publicAPI, err := public.NewClient(ctx, "localhost", "50051")
-	require.NoError(t, err)
+	if err != nil {
+		return err
+	}
 
 	wg.Add(5)
 	// Реализовать тесты логики приложения:
@@ -147,7 +141,7 @@ func TestPublicGRPCEndpoint(t *testing.T) {
 	wg.Wait()
 }
 
-func TestPublicAPIEndpoint(t *testing.T) {
+func TestPublicAPIEndpoint() error {
 	wg := sync.WaitGroup{}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

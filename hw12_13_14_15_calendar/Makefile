@@ -9,8 +9,8 @@ start: build-all rabbit-start calendar-start scheduler-start sender-start
 
 stop: scheduler-stop sender-stop calendar-stop rabbit-stop
 
-integration:
-	go test -v -race ./cmd/calendar/...
+integration-test:
+	go test -count 10 -race ./cmd/calendar/... --config ./../../configs/calendar.conf
 
 test:
 	go test -race ./internal/... ./pkg/...
