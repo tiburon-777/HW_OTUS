@@ -28,10 +28,10 @@ generate:
 compose-build:
 	sudo -S docker-compose -f ./cicd/docker-compose.yml build
 
-compose-up:
-	sudo -S docker-compose -f ./cicd/docker-compose.yml up -d
+up:
+	sudo -S docker-compose -f ./cicd/docker-compose.yml up -d --build
 
-compose-down:
+down:
 	sudo -S docker-compose -f ./cicd/docker-compose.yml down
 
 calendar-start:

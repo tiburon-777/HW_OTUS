@@ -3,8 +3,9 @@ package public
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
 	"net"
+
+	"google.golang.org/grpc"
 )
 
 func NewClient(ctx context.Context, addr, port string) (GrpcClient, error) {

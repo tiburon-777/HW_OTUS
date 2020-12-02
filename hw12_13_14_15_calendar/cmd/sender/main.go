@@ -2,14 +2,13 @@ package main
 
 import (
 	"flag"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/sender"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
 )
 
 var configFile string

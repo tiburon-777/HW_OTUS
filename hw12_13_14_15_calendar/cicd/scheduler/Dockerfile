@@ -3,7 +3,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 RUN go get -d ./cmd/scheduler/.
-RUN GOOS=linux GOARCH=amd64 go build -a -o scheduler ./cmd/scheduler/.
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o scheduler ./cmd/scheduler/.
 
 FROM alpine:latest
 ENV APP_RABBITMQ_ADDRESS=rabbitmq
@@ -19,4 +19,4 @@ ENV APP_LOGGER_FILE=/calendar.log
 ENV APP_LOGGER_LEVEL=INFO
 WORKDIR /
 COPY --from=builder /app/scheduler ./sbin
-CMD ["scheduler"]
+ENTRYPOINT ["scheduler"]

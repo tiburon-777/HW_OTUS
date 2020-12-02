@@ -1,16 +1,15 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE events (
-	id int(16) NOT NULL AUTO_INCREMENT,
+	id serial NOT NULL,
 	title varchar(255) NOT NULL,
-	date datetime NOT NULL,
-	latency int(16) NOT NULL,
-	note text,
-	userID int(16),
-	notifyTime int(16),
+	date timestamptz NOT NULL,
+	latency int8 NOT NULL,
+	note text NULL,
+	userID int8 NOT NULL,
+	notifyTime timestamptz NULL,
 	notified bool
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;;
+);
 -- +goose StatementEnd
 
 -- +goose Down

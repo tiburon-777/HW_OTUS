@@ -35,11 +35,11 @@ var testEvent02 = public.CreateReq{
 
 func main() {
 	if err := TestPublicAPIEndpoint(); err != nil {
-		log.Fatalf("TestPublicAPIEndpoint FAIL: %w",err)
+		log.Fatalf("TestPublicAPIEndpoint FAIL: %w", err)
 	}
 
 	if err := TestPublicGRPCEndpoint(); err != nil {
-		log.Fatalf("TestPublicGRPCEndpoint FAIL: %w",err)
+		log.Fatalf("TestPublicGRPCEndpoint FAIL: %w", err)
 	}
 
 }
@@ -69,7 +69,6 @@ func TestPublicGRPCEndpoint() error {
 		require.Equal(t, testEvent01.Date.Seconds, resp2.Events[0].Date.Seconds)
 		require.Equal(t, testEvent01.Note, resp2.Events[0].Note)
 	})
-
 	t.Run("test public GRPC.Create, GRPC.Update and GRPC.GetById", func(t *testing.T) {
 		defer wg.Done()
 		resp1, err := publicAPI.Create(ctx, &testEvent01)
@@ -85,7 +84,6 @@ func TestPublicGRPCEndpoint() error {
 		require.Equal(t, testEvent02.Date.Seconds, resp2.Events[0].Date.Seconds)
 		require.Equal(t, testEvent02.Note, resp2.Events[0].Note)
 	})
-
 	t.Run("test public GRPC.Create, GRPC.Delete and GRPC.GetById", func(t *testing.T) {
 		defer wg.Done()
 		resp1, err := publicAPI.Create(ctx, &testEvent01)
@@ -97,7 +95,6 @@ func TestPublicGRPCEndpoint() error {
 		require.Error(t, err)
 		require.Nil(t, resp2)
 	})
-
 	t.Run("test public GRPC.Create and GRPC.List", func(t *testing.T) {
 		defer wg.Done()
 		resp1, err := publicAPI.Create(ctx, &testEvent01)
@@ -110,34 +107,32 @@ func TestPublicGRPCEndpoint() error {
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(list.Events), 2)
 		var e1, e2 bool
-		for _,v := range list.Events {
-			if v.ID==resp1.ID {
-				e1=true
+		for _, v := range list.Events {
+			if v.ID == resp1.ID {
+				e1 = true
 			}
-			if v.ID==resp2.ID {
-				e2=true
+			if v.ID == resp2.ID {
+				e2 = true
 			}
 		}
 		require.True(t, e1)
 		require.True(t, e2)
 	})
-
-	t.Run("test public GRPC.Create and GRPC.GetByDate", func(t *testing.T){
+	t.Run("test public GRPC.Create and GRPC.GetByDate", func(t *testing.T) {
 		defer wg.Done()
 		resp1, err := publicAPI.Create(ctx, &testEvent01)
 		require.NoError(t, err)
-		list, err := publicAPI.GetByDate(ctx,&public.GetByDateReq{Date: testEvent01.Date, Range: public.QueryRange_DAY})
+		list, err := publicAPI.GetByDate(ctx, &public.GetByDateReq{Date: testEvent01.Date, Range: public.QueryRange_DAY})
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(list.Events), 2)
 		var e1 bool
-		for _,v := range list.Events {
-			if v.ID==resp1.ID {
-				e1=true
+		for _, v := range list.Events {
+			if v.ID == resp1.ID {
+				e1 = true
 			}
 		}
 		require.True(t, e1)
 	})
-
 	wg.Wait()
 }
 
@@ -205,29 +200,29 @@ func TestPublicAPIEndpoint() error {
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(list.Events), 2)
 		var e1, e2 bool
-		for _,v := range list.Events {
-			if v.ID==resp1.ID {
-				e1=true
+		for _, v := range list.Events {
+			if v.ID == resp1.ID {
+				e1 = true
 			}
-			if v.ID==resp2.ID {
-				e2=true
+			if v.ID == resp2.ID {
+				e2 = true
 			}
 		}
 		require.True(t, e1)
 		require.True(t, e2)
 	})
 
-	t.Run("test public GRPC.Create and GRPC.GetByDate", func(t *testing.T){
+	t.Run("test public GRPC.Create and GRPC.GetByDate", func(t *testing.T) {
 		defer wg.Done()
 		resp1, err := publicAPI.Create(ctx, &testEvent01)
 		require.NoError(t, err)
-		list, err := publicAPI.GetByDate(ctx,&public.GetByDateReq{Date: testEvent01.Date, Range: public.QueryRange_DAY})
+		list, err := publicAPI.GetByDate(ctx, &public.GetByDateReq{Date: testEvent01.Date, Range: public.QueryRange_DAY})
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(list.Events), 2)
 		var e1 bool
-		for _,v := range list.Events {
-			if v.ID==resp1.ID {
-				e1=true
+		for _, v := range list.Events {
+			if v.ID == resp1.ID {
+				e1 = true
 			}
 		}
 		require.True(t, e1)
@@ -235,7 +230,6 @@ func TestPublicAPIEndpoint() error {
 
 	wg.Wait()
 }
-
 
 func time2pbtimestamp(t time.Time) *timestamp.Timestamp {
 	r, err := ptypes.TimestampProto(t)

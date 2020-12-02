@@ -3,7 +3,7 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 RUN go get -d ./cmd/calendar/.
-RUN GOOS=linux GOARCH=amd64 go build -a -o calendar ./cmd/calendar/.
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o calendar ./cmd/calendar/.
 
 FROM alpine:latest
 ENV APP_GRPC_ADDRESS=0.0.0.0
@@ -14,7 +14,7 @@ ENV APP_API_ADDRESS=0.0.0.0
 ENV APP_API_PORT=50053
 ENV APP_LOGGER_FILE=/calendar.log
 ENV APP_LOGGER_LEVEL=INFO
-ENV APP_STORAGE_INMEMORY=true
+ENV APP_STORAGE_INMEMORY=false
 ENV APP_STORAGE_SQLHOST=psql
 ENV APP_STORAGE_SQLPORT=5432
 ENV APP_STORAGE_SQLDBASE=calendar
@@ -25,4 +25,4 @@ COPY --from=builder /app/calendar ./sbin
 EXPOSE ${APP_GRPC_PORT}
 EXPOSE ${APP_HTTP_PORT}
 EXPOSE ${APP_API_PORT}
-CMD ["calendar"]
+ENTRYPOINT ["calendar"]
