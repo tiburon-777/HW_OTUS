@@ -15,7 +15,7 @@ ENV APP_RABBITMQ_QUEUE=notifications
 ENV APP_RABBITMQ_KEY=events
 ENV APP_API_ADDRESS=calendar
 ENV APP_API_PORT=50053
-ENV APP_LOGGER_FILE=/calendar.log
+ENV APP_LOGGER_FILE=/logs/calendar.log
 ENV APP_LOGGER_LEVEL=INFO
 WORKDIR /
 COPY --from=builder /app/scheduler ./sbin

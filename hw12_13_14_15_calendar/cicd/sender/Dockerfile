@@ -13,7 +13,7 @@ ENV APP_RABBITMQ_PASS=rabbit
 ENV APP_RABBITMQ_EXCHANGE=calendar
 ENV APP_RABBITMQ_QUEUE=notifications
 ENV APP_RABBITMQ_KEY=events
-ENV APP_LOGGER_FILE=/calendar.log
+ENV APP_LOGGER_FILE=/logs/calendar.log
 ENV APP_LOGGER_LEVEL=INFO
 WORKDIR /
 COPY --from=builder /app/sender ./sbin

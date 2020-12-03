@@ -31,8 +31,13 @@ compose-build:
 up:
 	sudo -S docker-compose -f ./cicd/docker-compose.yml up -d --build
 
-down:
+down: shutdown clean
+
+shutdown:
 	sudo -S docker-compose -f ./cicd/docker-compose.yml down
+
+clean:
+	sudo docker rmi $(sudo docker images | grep '<none>' | awk '{print $3}')
 
 calendar-start:
 	nohup  ./bin/calendar -config ./configs/calendar.conf > /dev/null 2>&1 &

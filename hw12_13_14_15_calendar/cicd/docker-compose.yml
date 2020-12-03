@@ -5,7 +5,7 @@ services:
       context: ..
       dockerfile: ./cicd/calendar/Dockerfile
     volumes:
-      - ../calendar.log:/calendar.log
+      - ../logs:/logs
     ports:
       - "8888:8888"
       - "50051:50051"
@@ -23,7 +23,7 @@ services:
       context: ..
       dockerfile: ./cicd/scheduler/Dockerfile
     volumes:
-     - ../calendar.log:/calendar.log
+      - ../logs:/logs
     depends_on:
       - rabbitmq
       - calendar
@@ -34,7 +34,7 @@ services:
       context: ..
       dockerfile: ./cicd/sender/Dockerfile
     volumes:
-      - ../calendar.log:/calendar.log
+      - ../logs:/logs
     depends_on:
      - rabbitmq
     restart: on-failure
