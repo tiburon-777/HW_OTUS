@@ -1,14 +1,5 @@
 cdir = $(shell pwd)
 
-build-all:
-	go build -o ./bin/calendar ./cmd/calendar/main.go
-	go build -o ./bin/scheduler ./cmd/scheduler/main.go
-	go build -o ./bin/sender ./cmd/sender/main.go
-
-start: build-all rabbit-start calendar-start scheduler-start sender-start
-
-stop: scheduler-stop sender-stop calendar-stop rabbit-stop
-
 integration-test:
 	go test -count 10 -race ./cmd/calendar/... --config ./../../configs/calendar.conf
 
@@ -25,35 +16,31 @@ generate:
 	protoc  -I ./api/public  --go_out=plugins=grpc:./pkg/api/public --grpc-gateway_out=logtostderr=true:./pkg/api/public ./api/public/public.proto
 	protoc  -I ./api/private  --go_out=plugins=grpc:./internal/api/private ./api/private/private.proto
 
-compose-build:
-	sudo -S docker-compose -f ./cicd/docker-compose.yml build
+up: sup-up calendar-up sender-up sheduler-up
 
-up:
-	sudo -S docker-compose -f ./cicd/docker-compose.yml up -d --build
+down: calendar-down sender-down sheduler-down sup-down clean
 
-down: shutdown clean
+calendar-up:
+	docker-compose -f ./cicd/dc_calendar.yml up -d --build
+calendar-down:
+	docker-compose -f ./cicd/dc_calendar.yml down
 
-shutdown:
-	sudo -S docker-compose -f ./cicd/docker-compose.yml down
+sender-up:
+	docker-compose -f ./cicd/dc_sender.yml up -d --build
+sender-down:
+	docker-compose -f ./cicd/dc_sender.yml down
+
+sheduler-up:
+	docker-compose -f ./cicd/dc_sheduler.yml up -d --build
+sheduler-down:
+	docker-compose -f ./cicd/dc_sheduler.yml down
+
+sup-up:
+	docker-compose -f ./cicd/dc_sup.yml up -d --build
+sup-down:
+	docker-compose -f ./cicd/dc_sup.yml down
 
 clean:
 	sudo docker rmi $(sudo docker images | grep '<none>' | awk '{print $3}')
-
-calendar-start:
-	nohup  ./bin/calendar -config ./configs/calendar.conf > /dev/null 2>&1 &
-calendar-stop:
-	kill -9 `pgrep calendar`
-
-scheduler-start:
-	nohup  ./bin/scheduler -config ./configs/scheduler.conf > /dev/null 2>&1 &
-scheduler-stop:
-	kill -9 `pgrep scheduler`
-
-sender-start:
-	nohup  ./bin/sender -config ./configs/sender.conf > /dev/null 2>&1 &
-sender-stop:
-	kill -9 `pgrep sender`
-
-
 
 .PHONY: build run test lint

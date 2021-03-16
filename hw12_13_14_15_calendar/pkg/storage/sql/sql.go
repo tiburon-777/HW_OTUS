@@ -3,12 +3,15 @@ package sql
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
+
+	_ "github.com/lib/pq"
 
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
 )
 
-const dateTimeLayout = "2006-01-02 15:04:00 -0700"
+const dateTimeLayout = "2006-01-02T15:04:00Z"
 
 type Config struct {
 	User  string
@@ -22,17 +25,12 @@ type Storage struct {
 	db *sql.DB
 }
 
-func New(conf Config) *Storage {
-	return &Storage{}
-}
-
-func (s *Storage) Connect(config Config) error {
-	var err error
-	s.db, err = sql.Open("mysql", config.User+":"+config.Pass+"@tcp("+config.Host+":"+config.Port+")/"+config.Dbase)
+func New(config Config) *Storage {
+	db, err := sql.Open("postgres", "user="+config.User+" password="+config.Pass+" host="+config.Host+" port="+config.Port+" dbname="+config.Dbase+" sslmode=disable")
 	if err != nil {
-		return fmt.Errorf("can't connect to SQL server: %w", err)
+		log.Fatalf("can't connect to db: %s",err.Error())
 	}
-	return nil
+	return &Storage{db: db}
 }
 
 func (s *Storage) Close() error {
@@ -40,25 +38,21 @@ func (s *Storage) Close() error {
 }
 
 func (s *Storage) Create(ev event.Event) (event.ID, error) {
-	res, err := s.db.Exec(
+	lastInsertId := -1
+	if err := s.db.QueryRow(
 		`INSERT INTO events 
 		(title, date, latency, note, userID, notifyTime) VALUES 
-		($1, $2, $3, $4, $5, $6)`,
+		($1, $2, $3, $4, $5, $6) RETURNING id`,
 		ev.Title,
 		ev.Date.Format(dateTimeLayout),
 		ev.Latency,
 		ev.Note,
 		ev.UserID,
 		ev.NotifyTime,
-	)
-	if err != nil {
+	).Scan(&lastInsertId); err != nil {
 		return -1, fmt.Errorf("can't create event in SQL DB: %w", err)
 	}
-	idint64, err := res.LastInsertId()
-	if err != nil {
-		return -1, fmt.Errorf("can't get LastInsertId from SQL DB: %w", err)
-	}
-	return event.ID(idint64), err
+	return event.ID(lastInsertId), nil
 }
 
 func (s *Storage) Update(id event.ID, event event.Event) error {
@@ -93,7 +87,7 @@ func (s *Storage) Delete(id event.ID) error {
 
 func (s *Storage) List() (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
-	results, err := s.db.Query(`SELECT (id,title,date,latency,note,userID,notifyTime) from events ORDER BY id`)
+	results, err := s.db.Query(`SELECT id,title,date,latency,note,userID,notifyTime from events ORDER BY id`)
 	if err != nil {
 		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}
@@ -122,7 +116,7 @@ func (s *Storage) GetByID(id event.ID) (event.Event, bool) {
 	var res event.Event
 	var dateRaw string
 	err := s.db.QueryRow(
-		`SELECT (id,title,date,latency,note,userID,notifyTime) from events where id=$1`, id).Scan(res.Title, dateRaw, res.Latency, res.Note, res.UserID, res.NotifyTime)
+		`SELECT title,date,latency,note,userID,notifyTime from events where id=$1`, id).Scan(&res.Title, &dateRaw, &res.Latency, &res.Note, &res.UserID, &res.NotifyTime)
 	if err != nil {
 		return res, false
 	}
@@ -136,15 +130,16 @@ func (s *Storage) GetByID(id event.ID) (event.Event, bool) {
 
 func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
+	endDate := getEndDate(startDate, rng)
+
 	results, err := s.db.Query(
-		`SELECT (id,title,date,latency,note,userID,notifyTime)
+		`SELECT id,title,date,latency,note,userID,notifyTime
 				from events
-				where 	(date>$1 AND date<$2) OR
-						(date+latency>$1 AND date+latency<$2) OR
-						(date<$1 AND date+latency>$2)
+				where (date>=$1 AND date<=$2)
 				ORDER BY id`,
-		startDate,
-		getEndDate(startDate, rng))
+		startDate.Format(dateTimeLayout),
+		endDate.Format(dateTimeLayout))
+
 	if err != nil {
 		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}

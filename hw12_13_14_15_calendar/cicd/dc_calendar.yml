@@ -1,0 +1,29 @@
+version: '3'
+services:
+  calendar:
+    build:
+      context: ..
+      dockerfile: ./cicd/calendar/Dockerfile
+    volumes:
+      - ../logs:/logs
+    restart: on-failure
+    environment:
+      APP_GRPC_ADDRESS: 0.0.0.0
+      APP_GRPC_PORT: 50051
+      APP_HTTP_ADDRESS: 0.0.0.0
+      APP_HTTP_PORT: 8888
+      APP_API_ADDRESS: 0.0.0.0
+      APP_API_PORT: 50053
+      APP_LOGGER_FILE: /logs/calendar.log
+      APP_LOGGER_LEVEL: INFO
+      APP_STORAGE_INMEMORY: "false"
+      APP_STORAGE_SQLHOST: localhost
+      APP_STORAGE_SQLPORT: 5432
+      APP_STORAGE_SQLDBASE: calendar
+      APP_STORAGE_SQLUSER: calendar
+      APP_STORAGE_SQLPASS: 12345678
+    ports:
+      - 8888:8888
+      - 50051:50051
+      - 50053:50053
+    network_mode: host
