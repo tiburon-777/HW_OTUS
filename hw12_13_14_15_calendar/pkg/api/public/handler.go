@@ -2,6 +2,7 @@ package public
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -26,7 +27,7 @@ func (s *Service) Start(conf config.Calendar) error {
 	s.App.Logger.Infof("public GRPC server starting")
 	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.GRPC.Address, conf.GRPC.Port))
 	if err != nil {
-		return err
+		return fmt.Errorf("can't start public GRPC service: %w", err)
 	}
 	RegisterGrpcServer(s.S, s)
 	return s.S.Serve(listnGrpc)

@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
+	// Postgresql driver.
 	_ "github.com/lib/pq"
-
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
 )
 
@@ -28,7 +28,7 @@ type Storage struct {
 func New(config Config) *Storage {
 	db, err := sql.Open("postgres", "user="+config.User+" password="+config.Pass+" host="+config.Host+" port="+config.Port+" dbname="+config.Dbase+" sslmode=disable")
 	if err != nil {
-		log.Fatalf("can't connect to db: %s",err.Error())
+		log.Fatalf("can't connect to db: %s", err.Error())
 	}
 	return &Storage{db: db}
 }
@@ -38,7 +38,7 @@ func (s *Storage) Close() error {
 }
 
 func (s *Storage) Create(ev event.Event) (event.ID, error) {
-	lastInsertId := -1
+	lastInsertID := -1
 	if err := s.db.QueryRow(
 		`INSERT INTO events 
 		(title, date, latency, note, userID, notifyTime) VALUES 
@@ -49,10 +49,10 @@ func (s *Storage) Create(ev event.Event) (event.ID, error) {
 		ev.Note,
 		ev.UserID,
 		ev.NotifyTime,
-	).Scan(&lastInsertId); err != nil {
+	).Scan(&lastInsertID); err != nil {
 		return -1, fmt.Errorf("can't create event in SQL DB: %w", err)
 	}
-	return event.ID(lastInsertId), nil
+	return event.ID(lastInsertID), nil
 }
 
 func (s *Storage) Update(id event.ID, event event.Event) error {

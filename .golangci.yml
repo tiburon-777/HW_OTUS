@@ -17,3 +17,4 @@ linters:
     - gosec
     - nlreturn
     - exhaustive
+    - exhaustivestruct

@@ -2,16 +2,17 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage/event"
 )
 
 func FromRESTCreate(calendar *calendar.App) http.HandlerFunc {
@@ -34,9 +35,15 @@ func FromRESTCreate(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't create event through HTTP API", err, calendar.Logger, r)
 		}
-		bodyOut,err := json.Marshal(&public.CreateRsp{ID: int64(id)})
+		bodyOut, err := json.Marshal(&public.CreateRsp{ID: int64(id)})
+		if err != nil {
+			err503("can't marshal request", err, calendar.Logger, r)
+		}
 		r.WriteHeader(201)
-		r.Write(bodyOut)
+		_, err = r.Write(bodyOut)
+		if err != nil {
+			calendar.Logger.Errorf("can't send response")
+		}
 	}
 }
 
@@ -92,9 +99,15 @@ func FromRESTList(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't convert types", err, calendar.Logger, r)
 		}
-		bodyOut,err := json.Marshal(&events)
+		bodyOut, err := json.Marshal(&events)
+		if err != nil {
+			err503("can't marshal request", err, calendar.Logger, r)
+		}
 		r.WriteHeader(200)
-		r.Write(bodyOut)
+		_, err = r.Write(bodyOut)
+		if err != nil {
+			calendar.Logger.Errorf("can't send response")
+		}
 	}
 }
 
@@ -105,14 +118,19 @@ func FromRESTGetByID(calendar *calendar.App) http.HandlerFunc {
 			err503("can't get request parameter", err, calendar.Logger, r)
 		}
 		ev, _ := calendar.Storage.GetByID(event.ID(paramID))
-		event, err := event2pubEvent(ev)
+		evnt, err := event2pubEvent(ev)
 		if err != nil {
 			err503("can't convert types", err, calendar.Logger, r)
 		}
-		bodyOut,err := json.Marshal(&event)
+		bodyOut, err := json.Marshal(&evnt)
+		if err != nil {
+			err503("can't marshal request", err, calendar.Logger, r)
+		}
 		r.WriteHeader(200)
-		r.Write(bodyOut)
-
+		_, err = r.Write(bodyOut)
+		if err != nil {
+			calendar.Logger.Errorf("can't send response")
+		}
 
 		log.Println(paramID)
 		r.WriteHeader(555)
@@ -134,13 +152,19 @@ func FromRESTGetByDate(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't convert types", err, calendar.Logger, r)
 		}
-		bodyOut,err := json.Marshal(&events)
+		bodyOut, err := json.Marshal(&events)
+		if err != nil {
+			err503("can't marshal request", err, calendar.Logger, r)
+		}
 		r.WriteHeader(200)
-		r.Write(bodyOut)
+		_, err = r.Write(bodyOut)
+		if err != nil {
+			calendar.Logger.Errorf("can't send response")
+		}
 	}
 }
 
 func err503(s string, err error, l logger.Interface, r http.ResponseWriter) {
-	l.Errorf(s,": ", err.Error())
+	l.Errorf(s, ": ", err.Error())
 	r.WriteHeader(503)
 }

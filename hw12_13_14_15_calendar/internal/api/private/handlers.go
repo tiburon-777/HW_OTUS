@@ -32,7 +32,7 @@ func (s *Service) Start(conf Config) error {
 	listnGrpc, err := net.Listen("tcp", net.JoinHostPort(conf.Address, conf.Port))
 	RegisterGrpcServer(s.S, s)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't start private GRPC service: %w", err)
 	}
 	return s.S.Serve(listnGrpc)
 }

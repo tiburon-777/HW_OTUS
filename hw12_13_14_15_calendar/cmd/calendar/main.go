@@ -12,11 +12,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gorilla/mux"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
-	"github.com/gorilla/mux"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage"
 )
 
@@ -57,7 +57,6 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-
 
 	_, cancel := context.WithCancel(context.Background())
 	m := mux.NewRouter()
