@@ -3,9 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/api/private"
-	"google.golang.org/grpc"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/rest"
 	oslog "log"
 	"net"
 	"net/http"
@@ -13,11 +12,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
+	"github.com/gorilla/mux"
 	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage"
 )
 
@@ -59,25 +58,20 @@ func main() {
 		}
 	}()
 
-	grpcDiler, err := grpc.Dial(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), grpc.WithInsecure())
-	if err != nil {
-		log.Errorf("can't dial grpc server: " + err.Error())
-		os.Exit(1)
-	}
-	defer grpcDiler.Close()
 
-	grpcGwRouter := runtime.NewServeMux()
-	ctx, cancel := context.WithCancel(context.Background())
-	if err = public.RegisterGrpcHandler(ctx, grpcGwRouter, grpcDiler); err != nil {
-		log.Errorf("can't register handlers for grpc-gateway: " + err.Error())
-		os.Exit(1)
-	}
+	_, cancel := context.WithCancel(context.Background())
+	m := mux.NewRouter()
 
-	mux := http.NewServeMux()
-	mux.Handle("/", grpcGwRouter)
+	m.HandleFunc("/events", rest.FromRESTCreate(calendar)).Methods("POST")
+	m.HandleFunc("/events/{ID}", rest.FromRESTUpdate(calendar)).Methods("PUT")
+	m.HandleFunc("/events/{ID}", rest.FromRESTDelete(calendar)).Methods("DELETE")
+	m.HandleFunc("/events", rest.FromRESTList(calendar)).Methods("GET")
+	m.HandleFunc("/events/{ID}", rest.FromRESTGetByID(calendar)).Methods("GET")
+	m.HandleFunc("/events/{Range}/{Date}", rest.FromRESTGetByDate(calendar)).Methods("GET")
+
 	go func() {
 		log.Infof("webAPI server starting")
-		if err := http.ListenAndServe(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), mux); err != nil {
+		if err := http.ListenAndServe(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), m); err != nil {
 			log.Errorf("failed to start webAPI server: " + err.Error())
 			os.Exit(1)
 		}

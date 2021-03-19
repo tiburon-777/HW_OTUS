@@ -50,7 +50,7 @@ func (h HTTPAPI) Update(req *public.UpdateReq) error {
 	if err != nil {
 		return err
 	}
-	if res.StatusCode!=201 {
+	if res.StatusCode!=200 {
 		return fmt.Errorf("unexpected status code %d",res.StatusCode)
 	}
 	return nil
@@ -65,7 +65,7 @@ func (h HTTPAPI) Delete(req *public.DeleteReq) error {
 	if err != nil {
 		return err
 	}
-	if res.StatusCode!=201 {
+	if res.StatusCode!=200 {
 		return fmt.Errorf("unexpected status code %d",res.StatusCode)
 	}
 	return nil
@@ -80,7 +80,7 @@ func (h HTTPAPI) GetByID(req *public.GetByIDReq) ( *public.GetByIDResp, error) {
 	if err != nil {
 		return &public.GetByIDResp{}, err
 	}
-	if res.StatusCode!=201 {
+	if res.StatusCode!=200 {
 		return &public.GetByIDResp{}, fmt.Errorf("unexpected status code %d",res.StatusCode)
 	}
 	var getByIDResp public.GetByIDResp
@@ -116,7 +116,7 @@ func (h HTTPAPI) GetByDate(req *public.GetByDateReq) ( *public.GetByDateResp, er
 	if err != nil {
 		return &public.GetByDateResp{}, err
 	}
-	if res.StatusCode!=201 {
+	if res.StatusCode!=200 {
 		return &public.GetByDateResp{}, fmt.Errorf("unexpected status code %d",res.StatusCode)
 	}
 	var getByDateResp public.GetByDateResp

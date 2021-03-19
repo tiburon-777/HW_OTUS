@@ -7,6 +7,7 @@ require (
 	github.com/amitrai48/logger v0.0.0-20190214092904-448001c055ec
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang/protobuf v1.4.2
+	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.15.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.0

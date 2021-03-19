@@ -13,7 +13,7 @@ install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.30.0
 
 generate:
-	protoc  -I ./api/public  --go_out=plugins=grpc:./pkg/api/public --grpc-gateway_out=logtostderr=true:./pkg/api/public ./api/public/public.proto
+	protoc  -I ./api/public  --go_out=plugins=grpc:./pkg/api/public ./api/public/public.proto
 	protoc  -I ./api/private  --go_out=plugins=grpc:./internal/api/private ./api/private/private.proto
 
 up: sup-up calendar-up sender-up sheduler-up

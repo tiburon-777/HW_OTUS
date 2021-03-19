@@ -733,9 +733,7 @@ func _Grpc_Create_Handler(srv interface{}, ctx context.Context, dec func(interfa
 		return nil, err
 	}
 	if interceptor == nil {
-		sss := srv.(GrpcServer)
-		rrrrr, err := sss.Create(ctx, in)
-		return rrrrr, err
+		return srv.(GrpcServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
