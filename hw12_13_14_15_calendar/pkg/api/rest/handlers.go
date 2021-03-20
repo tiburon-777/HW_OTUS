@@ -2,8 +2,8 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -53,7 +53,7 @@ func FromRESTUpdate(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't get request parameter", err, calendar.Logger, r)
 		}
-		bodyReq := public.Event{}
+		bodyReq := public.UpdateReq{}
 		bodyIn, err := ioutil.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
@@ -63,7 +63,7 @@ func FromRESTUpdate(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't unmarshal data from HTTP API request", err, calendar.Logger, r)
 		}
-		evt, err := pubEvent2Event(bodyReq)
+		evt, err := pubEvent2Event(*bodyReq.Event)
 		if err != nil {
 			err503("can't convert types", err, calendar.Logger, r)
 		}
@@ -117,7 +117,10 @@ func FromRESTGetByID(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't get request parameter", err, calendar.Logger, r)
 		}
-		ev, _ := calendar.Storage.GetByID(event.ID(paramID))
+		ev, ok := calendar.Storage.GetByID(event.ID(paramID))
+		if !ok {
+			err503("event not found", fmt.Errorf("no one"), calendar.Logger, r)
+		}
 		evnt, err := event2pubEvent(ev)
 		if err != nil {
 			err503("can't convert types", err, calendar.Logger, r)
@@ -126,21 +129,18 @@ func FromRESTGetByID(calendar *calendar.App) http.HandlerFunc {
 		if err != nil {
 			err503("can't marshal request", err, calendar.Logger, r)
 		}
-		r.WriteHeader(200)
 		_, err = r.Write(bodyOut)
 		if err != nil {
 			calendar.Logger.Errorf("can't send response")
 		}
-
-		log.Println(paramID)
-		r.WriteHeader(555)
 	}
 }
 
 func FromRESTGetByDate(calendar *calendar.App) http.HandlerFunc {
 	return func(r http.ResponseWriter, req *http.Request) {
 		paramRange := mux.Vars(req)["Range"]
-		paramDate, err := time.Parse("2006-01-02 15:04:05", mux.Vars(req)["Date"])
+		d, err := strconv.Atoi(mux.Vars(req)["Date"])
+		paramDate := time.Unix(int64(d), 0)
 		if err != nil {
 			err503("can't parse date from request parameter", err, calendar.Logger, r)
 		}
@@ -165,6 +165,6 @@ func FromRESTGetByDate(calendar *calendar.App) http.HandlerFunc {
 }
 
 func err503(s string, err error, l logger.Interface, r http.ResponseWriter) {
-	l.Errorf(s, ": ", err.Error())
+	l.Errorf("%s: %w", s, err.Error())
 	r.WriteHeader(503)
 }

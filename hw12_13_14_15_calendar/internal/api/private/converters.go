@@ -20,5 +20,5 @@ func (s Service) buildEventList(evtMap map[event.ID]event.Event) ([]*Event, erro
 		events[i] = &evt
 		i++
 	}
-	return events, fmt.Errorf("can't convert types: %w", err)
+	return events, nil
 }

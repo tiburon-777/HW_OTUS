@@ -74,21 +74,21 @@ func (h HTTPAPI) Delete(req *public.DeleteReq) error {
 func (h HTTPAPI) GetByID(req *public.GetByIDReq) (*public.GetByIDResp, error) {
 	jreq, err := json.Marshal(req)
 	if err != nil {
-		return &public.GetByIDResp{}, err
+		return nil, err
 	}
 	res, body, err := apiCall("GET", h.BaseURL+"/events/"+strconv.Itoa(int(req.ID)), jreq)
 	if err != nil {
-		return &public.GetByIDResp{}, err
+		return nil, err
 	}
 	if res.StatusCode != 200 {
-		return &public.GetByIDResp{}, fmt.Errorf("unexpected status code %d", res.StatusCode)
+		return nil, fmt.Errorf("unexpected status code %d", res.StatusCode)
 	}
-	var getByIDResp public.GetByIDResp
-	err = json.Unmarshal(body, &getByIDResp)
+	var ev public.Event
+	err = json.Unmarshal(body, &ev)
 	if err != nil {
-		return &public.GetByIDResp{}, err
+		return nil, err
 	}
-	return &getByIDResp, nil
+	return &public.GetByIDResp{Events: []*public.Event{&ev}}, nil
 }
 
 func (h HTTPAPI) List() (*public.ListResp, error) {
@@ -100,7 +100,7 @@ func (h HTTPAPI) List() (*public.ListResp, error) {
 		return &public.ListResp{}, fmt.Errorf("unexpected status code %d", res.StatusCode)
 	}
 	var listResp public.ListResp
-	err = json.Unmarshal(body, &listResp)
+	err = json.Unmarshal(body, &listResp.Events)
 	if err != nil {
 		return &public.ListResp{}, err
 	}
@@ -112,7 +112,8 @@ func (h HTTPAPI) GetByDate(req *public.GetByDateReq) (*public.GetByDateResp, err
 	if err != nil {
 		return &public.GetByDateResp{}, err
 	}
-	res, body, err := apiCall("GET", h.BaseURL+"/events/"+string(req.Range)+"/"+req.Date.String(), jreq)
+
+	res, body, err := apiCall("GET", h.BaseURL+"/events/"+req.Range.String()+"/"+strconv.Itoa(int(req.Date.Seconds)), jreq)
 	if err != nil {
 		return &public.GetByDateResp{}, err
 	}
@@ -120,7 +121,7 @@ func (h HTTPAPI) GetByDate(req *public.GetByDateReq) (*public.GetByDateResp, err
 		return &public.GetByDateResp{}, fmt.Errorf("unexpected status code %d", res.StatusCode)
 	}
 	var getByDateResp public.GetByDateResp
-	err = json.Unmarshal(body, &getByDateResp)
+	err = json.Unmarshal(body, &getByDateResp.Events)
 	if err != nil {
 		return &public.GetByDateResp{}, err
 	}
