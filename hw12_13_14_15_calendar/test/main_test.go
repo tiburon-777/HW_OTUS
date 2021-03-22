@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
 	"github.com/stretchr/testify/require"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/client"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/misc"
-	"context"
 	"log"
 	"sync"
 	"testing"
@@ -18,7 +18,7 @@ func TestPublicAPIEndpoints(t *testing.T) {
 		client.HTTPAPI{BaseURL: "http://localhost:50052", Name: "HTTP REST API"},
 	}
 	wg := sync.WaitGroup{}
-	wg.Add(len(cli) * 5)
+	wg.Add(len(cli) * 6)
 
 	for _, c := range cli {
 		t.Run("test "+c.GetName()+" for Create, GetById and Delete", func(t *testing.T) {
@@ -152,6 +152,25 @@ func TestPublicAPIEndpoints(t *testing.T) {
 			resp4, err := c.GetByDate(&public.GetByDateReq{Date: misc.Time2pbtimestamp(startDate), Range: public.QueryRange_MONTH})
 			require.NoError(t, err)
 			require.Equal(t, 16, len(resp4.Events))
+		})
+
+		t.Run("test "+c.GetName()+" for send notification", func(t *testing.T) {
+			var ids []int64
+			defer func() {
+				wg.Done()
+				clean(c, &ids)
+			}()
+
+			resp1, err := c.Create(&misc.TestEvent03)
+			require.NoError(t, err)
+			require.Greater(t, resp1.ID, int64(0))
+			ids = append(ids, resp1.ID)
+			time.Sleep(3 * time.Second)
+
+			resp2, err := c.GetByID(&public.GetByIDReq{ID: resp1.ID})
+			require.NoError(t, err)
+			require.Equal(t, 1, len(resp2.Events))
+			require.True(t, resp2.Events[0].Notified)
 		})
 	}
 }

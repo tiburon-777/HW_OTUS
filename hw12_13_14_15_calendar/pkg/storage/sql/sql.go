@@ -41,14 +41,15 @@ func (s *Storage) Create(ev event.Event) (event.ID, error) {
 	lastInsertID := -1
 	if err := s.db.QueryRow(
 		`INSERT INTO events 
-		(title, date, latency, note, userID, notifyTime) VALUES 
-		($1, $2, $3, $4, $5, $6) RETURNING id`,
+		(title, date, latency, note, userID, notifyTime,notified) VALUES 
+		($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
 		ev.Title,
 		ev.Date.Format(dateTimeLayout),
 		ev.Latency,
 		ev.Note,
 		ev.UserID,
 		ev.NotifyTime,
+		false,
 	).Scan(&lastInsertID); err != nil {
 		return -1, fmt.Errorf("can't create event in SQL DB: %w", err)
 	}
@@ -87,7 +88,7 @@ func (s *Storage) Delete(id event.ID) error {
 
 func (s *Storage) List() (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
-	results, err := s.db.Query(`SELECT id,title,date,latency,note,userID,notifyTime from events ORDER BY id`)
+	results, err := s.db.Query(`SELECT id,title,date,latency,note,userID,notifyTime,notified from events ORDER BY id`)
 	if err != nil {
 		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}
@@ -96,7 +97,7 @@ func (s *Storage) List() (map[event.ID]event.Event, error) {
 		var id event.ID
 		var evt event.Event
 		var dateRaw string
-		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
+		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime, &evt.Notified)
 		if err != nil {
 			return nil, fmt.Errorf("can't parce list of events getted from SQL DB: %w", err)
 		}
@@ -116,7 +117,7 @@ func (s *Storage) GetByID(id event.ID) (event.Event, bool) {
 	var res event.Event
 	var dateRaw string
 	err := s.db.QueryRow(
-		`SELECT title,date,latency,note,userID,notifyTime from events where id=$1`, id).Scan(&res.Title, &dateRaw, &res.Latency, &res.Note, &res.UserID, &res.NotifyTime)
+		`SELECT title,date,latency,note,userID,notifyTime,notified from events where id=$1`, id).Scan(&res.Title, &dateRaw, &res.Latency, &res.Note, &res.UserID, &res.NotifyTime, &res.Notified)
 	if err != nil {
 		return res, false
 	}
@@ -133,7 +134,7 @@ func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event
 	endDate := getEndDate(startDate, rng)
 
 	results, err := s.db.Query(
-		`SELECT id,title,date,latency,note,userID,notifyTime
+		`SELECT id,title,date,latency,note,userID,notifyTime,notified
 				from events
 				where (date>=$1 AND date<=$2)
 				ORDER BY id`,
@@ -148,7 +149,7 @@ func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event
 		var id event.ID
 		var evt event.Event
 		var dateRaw string
-		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime)
+		err = results.Scan(&id, &evt.Title, &dateRaw, &evt.Latency, &evt.Note, &evt.UserID, &evt.NotifyTime, &evt.Notified)
 		if err != nil {
 			return nil, fmt.Errorf("can't parce list of events getted from SQL DB: %w", err)
 		}
@@ -167,11 +168,10 @@ func (s *Storage) GetByDate(startDate time.Time, rng string) (map[event.ID]event
 func (s *Storage) GetNotifications() (map[event.ID]event.Event, error) {
 	res := make(map[event.ID]event.Event)
 	results, err := s.db.Query(
-		`SELECT (id,title,date,latency,note,userID,notifyTime)
+		`SELECT id,title,date,latency,note,userID,notifyTime
 				from events
-				where 	($1>date-notifyTime) AND (NOT notified)
-				ORDER BY id`,
-		time.Now())
+				where 	(NOW()>date) AND (NOT notified)
+				ORDER BY id`)
 	if err != nil {
 		return nil, fmt.Errorf("can't get list of events from SQL DB: %w", err)
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/api/private"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
@@ -43,11 +44,11 @@ func worker(ctx context.Context, calendarAPI config.Server, rb *rabbit.Rabbit, l
 	if err != nil {
 		return fmt.Errorf("can't get GRPC client: %w", err)
 	}
-	resp, err := cli.GetNotifications(ctx, nil)
+	resp, err := cli.GetNotifications(ctx, &empty.Empty{})
 	if err != nil {
 		return fmt.Errorf("can't get events from GRPC endpoint: %w", err)
 	}
-	for event := range resp.Events {
+	for _, event := range resp.Events {
 		b, err := json.Marshal(event)
 		if err != nil {
 			return fmt.Errorf("can't marshal events into JSON: %w", err)

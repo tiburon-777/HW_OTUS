@@ -58,6 +58,7 @@ message Event {
   string Note = 5;
   int64 UserID = 6;
   google.protobuf.Duration NotifyTime = 7;
+  bool notified = 8;
 }
 
 message CreateReq {

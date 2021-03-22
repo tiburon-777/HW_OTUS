@@ -39,7 +39,7 @@ func New(conf Config) Scheduler {
 func (s *Scheduler) Start() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	s.Stop = cancel
-	fetcher := riseOnTick(ctx, s.Logger, func() interface{} { return worker(ctx, s.CalendarAPI, s.Rabbit, s.Logger) }, 1*time.Minute)
+	fetcher := riseOnTick(ctx, s.Logger, func() interface{} { return worker(ctx, s.CalendarAPI, s.Rabbit, s.Logger) }, 10*time.Second)
 	go func() {
 		for {
 			select {

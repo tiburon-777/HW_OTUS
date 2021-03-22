@@ -15,6 +15,8 @@ services:
       APP_RABBITMQ_EXCHANGE: calendar
       APP_RABBITMQ_QUEUE: notifications
       APP_RABBITMQ_KEY: events
+      APP_API_ADDRESS: localhost
+      APP_API_PORT: 50053
       APP_LOGGER_FILE: /logs/calendar.log
       APP_LOGGER_LEVEL: INFO
     network_mode: host

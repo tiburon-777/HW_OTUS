@@ -13,15 +13,17 @@ import (
 )
 
 type Sender struct {
-	Logger logger.Interface
-	Rabbit *rabbit.Rabbit
-	Queue  string
-	Stop   context.CancelFunc
+	GRPCAPI private.GrpcClient
+	Logger  logger.Interface
+	Rabbit  *rabbit.Rabbit
+	Queue   string
+	Stop    context.CancelFunc
 }
 
 type Config struct {
-	Rabbitmq config.Rabbit
-	Logger   config.Logger
+	CalendarAPI config.Server
+	Rabbitmq    config.Rabbit
+	Logger      config.Logger
 }
 
 func New(conf Config) Sender {
@@ -33,7 +35,11 @@ func New(conf Config) Sender {
 	if err != nil {
 		log.Fatalf("failed to connect to RabbitMQ:", err.Error())
 	}
-	return Sender{Logger: log, Rabbit: rb, Queue: conf.Rabbitmq.Queue}
+	cli, err := private.NewClient(conf.CalendarAPI.Address, conf.CalendarAPI.Port)
+	if err != nil {
+		log.Fatalf("can't get GRPC client: %w", err.Error())
+	}
+	return Sender{Logger: log, Rabbit: rb, Queue: conf.Rabbitmq.Queue, GRPCAPI: cli}
 }
 
 func (s *Sender) Start() error {
@@ -54,6 +60,10 @@ func (s *Sender) Start() error {
 					s.Logger.Errorf("can`t unmarshal data %w", err)
 				}
 				for _, v := range data {
+					_, err = s.GRPCAPI.SetNotified(ctx, &private.SetReq{ID: v.ID})
+					if err != nil {
+						s.Logger.Errorf("can`t mark event with ID %d as notified data %w", v.ID, err)
+					}
 					s.Logger.Infof("User %s notified about event %s", v.UserID, v.ID)
 				}
 			case <-ctx.Done():

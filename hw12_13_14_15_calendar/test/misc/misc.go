@@ -27,6 +27,15 @@ var TestEvent02 = public.CreateReq{
 	UserID:     2222,
 }
 
+var TestEvent03 = public.CreateReq{
+	Title:      "Test event 03",
+	Date:       Time2pbtimestamp(time.Now().Add(-5 * time.Minute)),
+	Latency:    Dur2pbduration(24 * time.Hour),
+	Note:       "Note of test event 03",
+	NotifyTime: Dur2pbduration(1 * time.Second),
+	UserID:     1111,
+}
+
 func Time2pbtimestamp(t time.Time) *timestamp.Timestamp {
 	r, err := ptypes.TimestampProto(t)
 	if err != nil {
