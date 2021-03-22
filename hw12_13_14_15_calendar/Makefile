@@ -3,6 +3,9 @@ cdir = $(shell pwd)
 integration-test:
 	go test -count 10 -race ./cmd/calendar/... --config ./../../configs/calendar.conf
 
+bdd:
+	docker build -t bdd --network host -f test/Dockerfile .
+
 test:
 	go test -race ./internal/... ./pkg/...
 
@@ -41,6 +44,6 @@ sup-down:
 	docker-compose -f ./cicd/dc_sup.yml down
 
 clean:
-	sudo docker rmi $(sudo docker images | grep '<none>' | awk '{print $3}')
+	docker rmi $(sudo docker images | grep '<none>' | awk '{print $3}')
 
 .PHONY: build run test lint

@@ -11,7 +11,7 @@ services:
       APP_GRPC_ADDRESS: 0.0.0.0
       APP_GRPC_PORT: 50051
       APP_HTTP_ADDRESS: 0.0.0.0
-      APP_HTTP_PORT: 8888
+      APP_HTTP_PORT: 50052
       APP_API_ADDRESS: 0.0.0.0
       APP_API_PORT: 50053
       APP_LOGGER_FILE: /logs/calendar.log

@@ -5,6 +5,7 @@ import (
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/client"
 	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/misc"
+	"context"
 	"log"
 	"sync"
 	"testing"
@@ -13,7 +14,7 @@ import (
 
 func TestPublicAPIEndpoints(t *testing.T) {
 	cli := []client.Interface{
-		// client.GRPCAPI{Ctx: context.Background(), Host: "localhost", Port: "50051", Name: "GRPC API"},
+		client.GRPCAPI{Ctx: context.Background(), Host: "localhost", Port: "50051", Name: "GRPC API"},
 		client.HTTPAPI{BaseURL: "http://localhost:50052", Name: "HTTP REST API"},
 	}
 	wg := sync.WaitGroup{}
