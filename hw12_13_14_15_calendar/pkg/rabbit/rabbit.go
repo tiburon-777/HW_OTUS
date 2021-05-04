@@ -2,13 +2,13 @@ package rabbit
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/streadway/amqp"
 )
 
 type Rabbit struct {
 	Connection *amqp.Connection
-	Channel    *amqp.Channel
 	Exchange   string
 	Key        string
 	Queue      string
@@ -30,6 +30,11 @@ func New(conf Config) (*Rabbit, error) {
 		return nil, fmt.Errorf("can't dial RabbitMQ over AMQP: %w", err)
 	}
 	ch, err := conn.Channel()
+	defer func() {
+		if err := ch.Close(); err != nil {
+			log.Println("can't close AMQP connection")
+		}
+	}()
 	if err != nil {
 		return nil, fmt.Errorf("can't get channel from AMQP connection: %w", err)
 	}
@@ -60,7 +65,7 @@ func New(conf Config) (*Rabbit, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't bind Queue on Exchange in RabbitMQ: %w", err)
 	}
-	return &Rabbit{Connection: conn, Channel: ch}, nil
+	return &Rabbit{Connection: conn, Exchange: conf.Exchange, Key: conf.Key, Queue: conf.Queue}, nil
 }
 
 func Attach(conf Config) (*Rabbit, error) {
@@ -68,17 +73,10 @@ func Attach(conf Config) (*Rabbit, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't dial RabbitMQ over AMQP: %w", err)
 	}
-	ch, err := conn.Channel()
-	if err != nil {
-		return nil, fmt.Errorf("can't get channel from AMQP connection: %w", err)
-	}
-	return &Rabbit{Connection: conn, Channel: ch, Exchange: conf.Exchange, Queue: conf.Queue, Key: conf.Key}, nil
+	return &Rabbit{Connection: conn, Exchange: conf.Exchange, Queue: conf.Queue, Key: conf.Key}, nil
 }
 
 func (r *Rabbit) Close() error {
-	if err := r.Channel.Close(); err != nil {
-		return fmt.Errorf("can't close connection channel: %w", err)
-	}
 	if err := r.Connection.Close(); err != nil {
 		return fmt.Errorf("can't close connection: %w", err)
 	}

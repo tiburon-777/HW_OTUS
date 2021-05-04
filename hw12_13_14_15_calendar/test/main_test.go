@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/client"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/misc"
 	"log"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/client"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/test/misc"
 )
 
 func TestPublicAPIEndpoints(t *testing.T) {
@@ -165,7 +167,7 @@ func TestPublicAPIEndpoints(t *testing.T) {
 			require.NoError(t, err)
 			require.Greater(t, resp1.ID, int64(0))
 			ids = append(ids, resp1.ID)
-			time.Sleep(3 * time.Second)
+			time.Sleep(5 * time.Second)
 
 			resp2, err := c.GetByID(&public.GetByIDReq{ID: resp1.ID})
 			require.NoError(t, err)

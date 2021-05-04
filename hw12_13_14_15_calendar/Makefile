@@ -47,14 +47,14 @@ sender-up:
 sender-down:
 	docker-compose -f ./cicd/dc_sender.yml down
 
-sheduler-up:
+scheduler-up:
 	docker-compose -f ./cicd/dc_sheduler.yml up -d --build
-sheduler-down:
+scheduler-down:
 	docker-compose -f ./cicd/dc_sheduler.yml down
 
 sup-up:
 	docker-compose -f ./cicd/dc_sup.yml up -d --build
 sup-down:
-	docker-compose -f ./cicd/dc_sup.yml down
+	docker-compose -f ./cicd/dc_sup.yml down --rmi local -v
 
 .PHONY: build run test lint

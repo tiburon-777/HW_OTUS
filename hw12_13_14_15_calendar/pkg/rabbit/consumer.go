@@ -19,7 +19,11 @@ type Message struct {
 
 func (r *Rabbit) Consume(ctx context.Context, queue string) (<-chan Message, error) {
 	messages := make(chan Message)
-	deliveries, err := r.Channel.Consume(queue, "", false, false, false, false, nil)
+	ch, err := r.Connection.Channel()
+	if err != nil {
+		return nil, fmt.Errorf("can't get channel from AMQP connection: %w", err)
+	}
+	deliveries, err := ch.Consume(queue, "", false, false, false, false, nil)
 	if err != nil {
 		return nil, fmt.Errorf("start consuming: %w", err)
 	}
