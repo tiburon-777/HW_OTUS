@@ -60,7 +60,7 @@ func New(conf Config) (*Rabbit, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't bind Queue on Exchange in RabbitMQ: %w", err)
 	}
-	return &Rabbit{Connection: conn, Channel: ch}, nil
+	return &Rabbit{Connection: conn, Channel: ch, Exchange:conf.Exchange, Key: conf.Key, Queue: conf.Queue}, nil
 }
 
 func Attach(conf Config) (*Rabbit, error) {

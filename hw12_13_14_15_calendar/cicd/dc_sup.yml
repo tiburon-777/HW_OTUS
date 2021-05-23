@@ -20,8 +20,6 @@ services:
       POSTGRES_USER: calendar
       POSTGRES_PASSWORD: 12345678
       POSTGRES_DB: calendar
-    ports:
-    - 5432:5432
     network_mode: host
 
   rabbitmq:
@@ -33,7 +31,4 @@ services:
       RABBITMQ_DEFAULT_USER: "rabbit"
       RABBITMQ_DEFAULT_PASS: "rabbit"
       RABBITMQ_DEFAULT_VHOST: "/"
-    ports:
-      - 15672:15672
-      - 5672:5672
     network_mode: host

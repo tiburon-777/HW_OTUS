@@ -22,8 +22,4 @@ services:
       APP_STORAGE_SQLDBASE: calendar
       APP_STORAGE_SQLUSER: calendar
       APP_STORAGE_SQLPASS: 12345678
-    ports:
-      - 8888:8888
-      - 50051:50051
-      - 50053:50053
     network_mode: host
