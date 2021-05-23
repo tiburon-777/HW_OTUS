@@ -16,4 +16,4 @@ linters:
     - gofumpt
     - gosec
     - nlreturn
-    - gocritic
+    - exhaustive

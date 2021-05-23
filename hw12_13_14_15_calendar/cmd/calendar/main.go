@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"google.golang.org/grpc"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/api/private"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/rest"
 	oslog "log"
 	"net"
 	"net/http"
@@ -12,43 +12,37 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/app"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/config"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/grpcserver"
-	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/logger"
-	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/storage"
+	"github.com/gorilla/mux"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/internal/calendar"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/api/public"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/config"
+	"github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/logger"
+	store "github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/pkg/storage"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "", "Path to configuration file")
 	flag.Parse()
 }
 
 func main() {
-	conf, err := config.NewConfig(configFile)
+	var conf config.Calendar
+	err := config.New(configFile, &conf)
 	if err != nil {
-		oslog.Fatal("не удалось открыть файл конфигурации:", err.Error())
+		oslog.Fatal("can't get config:", err.Error())
 	}
-	log, err := logger.New(conf)
+	log, err := logger.New(logger.Config(conf.Logger))
 	if err != nil {
-		oslog.Fatal("не удалось запустить логер:", err.Error())
+		oslog.Fatal("can't start logger:", err.Error())
 	}
-	storeConf := store.Config{
-		InMemory: conf.Storage.InMemory,
-		SQLHost:  conf.Storage.SQLHost,
-		SQLPort:  conf.Storage.SQLPort,
-		SQLDbase: conf.Storage.SQLDbase,
-		SQLUser:  conf.Storage.SQLUser,
-		SQLPass:  conf.Storage.SQLPass,
-	}
-	st := store.NewStore(storeConf)
 
-	calendar := app.New(log, st)
+	st := store.NewStore(store.Config(conf.Storage))
 
-	serverGRPC := grpcserver.New(calendar)
+	calendar := calendar.New(log, st)
+
+	serverGRPC := public.New(calendar)
 	go func() {
 		if err := serverGRPC.Start(conf); err != nil {
 			log.Errorf("failed to start grpc server: " + err.Error())
@@ -56,33 +50,37 @@ func main() {
 		}
 	}()
 
-	grpcDiler, err := grpc.Dial(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), grpc.WithInsecure())
-	if err != nil {
-		log.Errorf("can't dial grpc server: " + err.Error())
-		os.Exit(1)
-	}
-	defer grpcDiler.Close()
-
-	grpcGwRouter := runtime.NewServeMux()
-
-	if err = grpcserver.RegisterGrpcHandler(context.Background(), grpcGwRouter, grpcDiler); err != nil {
-		log.Errorf("can't register handlers for grpc-gateway: " + err.Error())
-		os.Exit(1)
-	}
-
-	mux := http.NewServeMux()
-	mux.Handle("/", grpcGwRouter)
+	serverAPI := private.New(calendar)
 	go func() {
-		log.Infof("start webAPI server")
-		if err := http.ListenAndServe(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), mux); err != nil {
+		if err := serverAPI.Start(private.Config(conf.API)); err != nil {
+			log.Errorf("failed to start API server: " + err.Error())
+			os.Exit(1)
+		}
+	}()
+
+	_, cancel := context.WithCancel(context.Background())
+	m := mux.NewRouter()
+
+	m.HandleFunc("/events", rest.FromRESTCreate(calendar)).Methods("POST")
+	m.HandleFunc("/events/{ID}", rest.FromRESTUpdate(calendar)).Methods("PUT")
+	m.HandleFunc("/events/{ID}", rest.FromRESTDelete(calendar)).Methods("DELETE")
+	m.HandleFunc("/events", rest.FromRESTList(calendar)).Methods("GET")
+	m.HandleFunc("/events/{ID}", rest.FromRESTGetByID(calendar)).Methods("GET")
+	m.HandleFunc("/events/{Range}/{Date}", rest.FromRESTGetByDate(calendar)).Methods("GET")
+
+	go func() {
+		log.Infof("webAPI server starting")
+		if err := http.ListenAndServe(net.JoinHostPort(conf.HTTP.Address, conf.HTTP.Port), m); err != nil {
 			log.Errorf("failed to start webAPI server: " + err.Error())
 			os.Exit(1)
 		}
 	}()
 
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals,syscall.SIGINT)
+	signal.Notify(signals, syscall.SIGINT)
 	<-signals
 	signal.Stop(signals)
 	serverGRPC.Stop()
+	serverAPI.Stop()
+	cancel()
 }

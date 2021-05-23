@@ -1,0 +1,34 @@
+version: '3'
+services:
+  goose:
+    build:
+      context: ..
+      dockerfile: ./cicd/goose/Dockerfile
+    restart: on-failure
+    environment:
+      GOOSE_DRIVER: "postgres"
+      GOOSE_DBSTRING: "host=localhost port=5432 user=calendar password=12345678 dbname=calendar sslmode=disable"
+    depends_on:
+      - psql
+    network_mode: host
+
+  psql:
+    image: postgres:11-alpine
+    hostname: "psql"
+    container_name: psql
+    environment:
+      POSTGRES_USER: calendar
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: calendar
+    network_mode: host
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    hostname: "rabbitmq"
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbit"
+      RABBITMQ_DEFAULT_PASS: "rabbit"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    network_mode: host

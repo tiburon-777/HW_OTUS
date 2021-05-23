@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package public;
+
+option go_package = "public";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+
+service grpc {
+  rpc Create(CreateReq) returns (CreateRsp) {
+    option (google.api.http) = {
+      post: "/events",
+      body: "*",
+    };
+  }
+  rpc Update(UpdateReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/events/{ID}",
+      body: "*",
+    };
+  }
+  rpc Delete(DeleteReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/events/{ID}"
+    };
+  }
+  rpc List(google.protobuf.Empty) returns (ListResp) {
+    option (google.api.http) = {
+      get: "/events"
+    };
+  }
+  rpc GetByID(GetByIDReq) returns (GetByIDResp) {
+    option (google.api.http) = {
+      get: "/events/{ID}"
+    };
+  }
+  rpc GetByDate(GetByDateReq) returns (GetByDateResp) {
+    option (google.api.http) = {
+      post: "/events/{Range}/{Date}"
+    };
+  }
+}
+
+enum QueryRange {
+  DAY = 0;
+  WEEK = 1;
+  MONTH = 2;
+}
+message Event {
+  int64 ID  = 1;
+  string Title = 2;
+  google.protobuf.Timestamp Date = 3;
+  google.protobuf.Duration Latency = 4;
+  string Note = 5;
+  int64 UserID = 6;
+  google.protobuf.Duration NotifyTime = 7;
+  bool notified = 8;
+}
+
+message CreateReq {
+  string Title = 2;
+  google.protobuf.Timestamp Date = 3;
+  google.protobuf.Duration Latency = 4;
+  string Note = 5;
+  int64 UserID = 6;
+  google.protobuf.Duration NotifyTime = 7;
+}
+message CreateRsp {
+  int64 ID  = 1;
+}
+message UpdateReq {
+  int64 ID  = 1;
+  Event Event = 2;
+}
+message DeleteReq {
+  int64 ID  = 1;
+}
+message ListResp {
+  repeated Event Events = 1;
+}
+message GetByIDReq {
+  int64 ID  = 1;
+}
+message GetByIDResp {
+  repeated Event Events = 1;
+}
+message GetByDateReq {
+  google.protobuf.Timestamp Date = 1;
+  QueryRange Range = 2;
+}
+message GetByDateResp {
+  repeated Event Events = 1;
+}
