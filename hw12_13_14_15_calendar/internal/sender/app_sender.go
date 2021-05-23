@@ -54,17 +54,17 @@ func (s *Sender) Start() error {
 		for {
 			select {
 			case m := <-msg:
-				var data []private.Event
-				err := json.Unmarshal(m.Data, &data)
-				if err != nil {
-					s.Logger.Errorf("can`t unmarshal data %w", err)
-				}
-				for _, v := range data {
-					_, err = s.GRPCAPI.SetNotified(ctx, &private.SetReq{ID: v.ID})
+				if m.Data != nil {
+					var data private.Event
+					err := json.Unmarshal(m.Data, &data)
 					if err != nil {
-						s.Logger.Errorf("can`t mark event with ID %d as notified data %w", v.ID, err)
+						s.Logger.Errorf("can`t unmarshal data %w", err)
 					}
-					s.Logger.Infof("User %s notified about event %s", v.UserID, v.ID)
+					_, err = s.GRPCAPI.SetNotified(ctx, &private.SetReq{ID: data.ID})
+					if err != nil {
+						s.Logger.Errorf("can`t mark event with ID %d as notified data %w", data.ID, err)
+					}
+					s.Logger.Infof("User %s notified about event %s", data.UserID, data.ID)
 				}
 			case <-ctx.Done():
 				return

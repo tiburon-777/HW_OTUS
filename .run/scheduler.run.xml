@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="scheduler" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="HW_OTUS" />
+    <working_directory value="$PROJECT_DIR$/hw12_13_14_15_calendar" />
+    <go_parameters value="-i" />
+    <parameters value="-config=configs/scheduler.conf" />
+    <kind value="PACKAGE" />
+    <package value="github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/cmd/scheduler" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="calendar" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="HW_OTUS" />
+    <working_directory value="$PROJECT_DIR$/hw12_13_14_15_calendar" />
+    <parameters value="-config=configs/calendar.conf" />
+    <kind value="PACKAGE" />
+    <package value="github.com/tiburon-777/HW_OTUS/hw12_13_14_15_calendar/cmd/calendar" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/hw12_13_14_15_calendar/cmd/calendar/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

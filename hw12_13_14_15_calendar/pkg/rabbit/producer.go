@@ -1,28 +1,34 @@
 package rabbit
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/streadway/amqp"
 )
 
-func (r *Rabbit) Publish(body string) error {
-	b, err := json.Marshal([]byte(body))
+func (r *Rabbit) Publish(b []byte) error {
+	ch, err := r.Connection.Channel()
+	defer func() {
+		if err := ch.Close(); err != nil {
+			log.Println("can't close AMQP connection")
+		}
+	}()
 	if err != nil {
-		return fmt.Errorf("can't marshal message body into JSON: %w", err)
+		return fmt.Errorf("can't get channel from AMQP connection: %w", err)
 	}
-	err = r.Channel.Publish(
+	err = ch.Publish(
 		r.Exchange, // exchange
 		r.Key,      // routing key
-		false,      // mandatory
+		true,       // mandatory
 		false,      // immediate
 		amqp.Publishing{
-			ContentType: "application/json; charset=utf-8",
-			Body:        b,
+			DeliveryMode: amqp.Persistent,
+			ContentType:  "application/json; charset=utf-8",
+			Body:         b,
 		})
 	if err != nil {
-		return fmt.Errorf("can't publish message into RabbitMQ exchange: %w", err)
+		return fmt.Errorf("can't publish message into RabbitMQ: %w", err)
 	}
 	return nil
 }

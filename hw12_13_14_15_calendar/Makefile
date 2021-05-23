@@ -55,7 +55,7 @@ scheduler-down:
 sup-up:
 	docker-compose -f ./cicd/dc_sup.yml up -d --build
 sup-down:
-	docker-compose -f ./cicd/dc_sup.yml down
+	docker-compose -f ./cicd/dc_sup.yml down --rmi local -v
 
 debug: sup-up calendar-up sender-up
 

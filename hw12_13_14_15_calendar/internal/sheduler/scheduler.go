@@ -53,7 +53,7 @@ func worker(ctx context.Context, calendarAPI config.Server, rb *rabbit.Rabbit, l
 		if err != nil {
 			return fmt.Errorf("can't marshal events into JSON: %w", err)
 		}
-		err = rb.Publish(string(b))
+		err = rb.Publish(b)
 		if err != nil {
 			return fmt.Errorf("can't publish serialized data to RabbitMQ: %w", err)
 		}
